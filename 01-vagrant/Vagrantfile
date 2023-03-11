@@ -26,24 +26,16 @@ Vagrant.configure("2") do |config|
     sudo apt-get install -y php # устанавливаем PHP
     sudo rm -ivf /var/www/html/index.html # удаляем индексную страницу Apache
   
-    sudo mkdir /etc/apache2/sites-available # создаем папку для конфигураций сайтов (available)
-    sudo mkdir /etc/apache2/sites-enabled # создаем папку для активных конфигураций сайтов (enabled)
-    sudo cp /tmp/devops-hometasks-master/01-vagrant/ports.conf /etc/apache2/ports.conf # копируем файл с настройками портов
-    sudo cp /tmp/devops-hometasks-master/01-vagrant/000-default.conf /etc/apache2/sites-enabled/000-default.conf # копируем конфигурационный файл для сайта
-    sudo ln -s /etc/apache2/sites-available/localhost.conf /etc/apache2/sites-enabled/localhost.conf # создаем символическую ссылку на конфигурацию сайта
-    sudo cp /tmp/devops-hometasks-master/01-vagrant/httpd.conf /etc/httpd/conf/httpd.conf # копируем файл с настройками
-    sudo mkdir -p /var/www/localhost/public_html # создаем папку для статического сайта
-    sudo mkdir /var/www/localhost/logs # создаем папку для логов
-    sudo chmod -R 755 /var/www # изменяем права доступа для папки www
-    sudo chown -R $USER:$USER /var/www/localhost/public_html # меняем владельца папки со статическим сайтом на текущего пользователя
-    
-    sudo cp /tmp/devops-hometasks-master/01-vagrant/index.html /var/www/localhost/public_html/index.html # копируем статический сайт
-    sudo mkdir -p /var/www/localhost/public_html/php # создаем папку для динамического сайта
-    sudo cp /tmp/devops-hometasks-master/01-vagrant/index.php /var/www/localhost/public_html/php/index.php # копируем динамический сайта
-    sudo systemctl restart apache2 # перезапускаем сервис Apache2
+    sudo rm -ivf /var/www/html/index.html
+      sudo cp ./devops-hometasks-master/01-vagrant/index.html /var/www/html/index.html
+      sudo mkdir -p /var/www/html/php
+      sudo cp ./devops-hometasks-master/01-vagrant/index.php /var/www/html/php/index.php
+      sudo cp ./devops-hometasks-master/01-vagrant/ports.conf /etc/apache2/ports.conf
+      sudo cp ./devops-hometasks-master/01-vagrant/httpd.conf /etc/httpd/conf/httpd.conf
+      sudo cp ./devops-hometasks-master/01-vagrant/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+      sudo systemctl restart apache2
   SHELL
 
-  config.vm.provision "file", run: "always", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/id_rsa.pub" # копируем публичный ключ SSH в ВМ
-  config.vm.provision "file", run: "always", source: "~/.ssh/id_rsa" , destination: "~/.ssh/id_rsa" # копируем личный ключ SSH в ВМ
+  config.vm.provision "file", run: "always", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/id_rsa.pub"
+  config.vm.provision "file", run: "always", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
 end
-
