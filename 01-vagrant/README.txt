@@ -1,0 +1,1 @@
+https://app.vagrantup.com/atrohov97/boxes/centostask1
