@@ -19,25 +19,27 @@ Vagrant.configure("2") do |config|
     git config --global user.email "atrohov97@gmail.com" # задаем email пользователя для Git
     git config --list # выводим настройки Git
     sudo apt-get install -y apache2 # устанавливаем Apache2
-    
+    sudo apt-get install unzip
+    sudo chmod -R 755 /tmp/
+    sudo wget https://github.com/Stanisz1/devops-hometasks/archive/refs/heads/master.zip -O /tmp/git.zip
+    sudo unzip /tmp/git.zip -d /tmp/
     sudo apt-get install -y php # устанавливаем PHP
     sudo rm -ivf /var/www/html/index.html # удаляем индексную страницу Apache
-    sudo chmod -R 755 /etc/apache2  # изменяем права доступа
-    sudo chown -R $USER:$USER /etc/apache2
+  
     sudo mkdir /etc/apache2/sites-available # создаем папку для конфигураций сайтов (available)
     sudo mkdir /etc/apache2/sites-enabled # создаем папку для активных конфигураций сайтов (enabled)
-    sudo cp ./devops-hometasks/01-vagrant/ports.conf /etc/apache2/ports.conf # копируем файл с настройками портов
-    sudo cp ./devops-hometasks/01-vagrant/000-default.conf /etc/apache2/sites-enabled/000-default.conf # копируем конфигурационный файл для сайта
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/ports.conf /etc/apache2/ports.conf # копируем файл с настройками портов
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/000-default.conf /etc/apache2/sites-enabled/000-default.conf # копируем конфигурационный файл для сайта
     sudo ln -s /etc/apache2/sites-available/localhost.conf /etc/apache2/sites-enabled/localhost.conf # создаем символическую ссылку на конфигурацию сайта
-    sudo cp ./devops-hometasks/01-vagrant/httpd.conf /etc/httpd/conf/httpd.conf # копируем файл с настройками
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/httpd.conf /etc/httpd/conf/httpd.conf # копируем файл с настройками
     sudo mkdir -p /var/www/localhost/public_html # создаем папку для статического сайта
     sudo mkdir /var/www/localhost/logs # создаем папку для логов
     sudo chmod -R 755 /var/www # изменяем права доступа для папки www
     sudo chown -R $USER:$USER /var/www/localhost/public_html # меняем владельца папки со статическим сайтом на текущего пользователя
     
-    sudo cp ./devops-hometasks/01-vagrant/index.html /var/www/localhost/public_html/index.html # копируем статический сайт
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/index.html /var/www/localhost/public_html/index.html # копируем статический сайт
     sudo mkdir -p /var/www/localhost/public_html/php # создаем папку для динамического сайта
-    sudo cp ./devops-hometasks/01-vagrant/index.php /var/www/localhost/public_html/php/index.php # копируем динамический сайта
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/index.php /var/www/localhost/public_html/php/index.php # копируем динамический сайта
     sudo systemctl restart apache2 # перезапускаем сервис Apache2
   SHELL
 
