@@ -22,8 +22,8 @@ Vagrant.configure("2") do |config|
   sudo mkdir -p /var/www/html/php # создаем директорию для PHP-файлов
   sudo cp /tmp/devops-hometasks-master/01-vagrant/index.html /var/www/html/ # копируем файл index.html в директорию /var/www/html/
   sudo cp /tmp/devops-hometasks-master/01-vagrant/index.php /var/www/html/php # копируем файл index.php в директорию /var/www/html/php/
-  sudo cp /tmp/devops-hometasks-master/01-vagrant/httpd.conf /etc/httpd/conf/ # копируем файл httpd.conf в директорию /etc/httpd/conf/
-  sudo cp /tmp/devops-hometasks-master/01-vagrant/localhost.conf /etc/httpd/conf.d/ # копируем файл localhost.conf в директорию /etc/httpd/conf.d/
+  sudo cp /tmp/devops-hometasks-master/01-vagrant/httpd.conf /etc/httpd/conf/httpd.conf # копируем файл httpd.conf в директорию /etc/httpd/conf/
+  sudo cp /tmp/devops-hometasks-master/01-vagrant/localhost.conf /etc/httpd/conf.d/localhost.conf # копируем файл localhost.conf в директорию /etc/httpd/conf.d/
   sudo systemctl restart httpd # перезапускаем Apache
 SHELL
 
