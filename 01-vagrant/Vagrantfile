@@ -13,6 +13,9 @@ Vagrant.configure("2") do |config|
   sudo yum update -y # обновляем пакеты
   sudo yum install -y git # устанавливаем Git
   sudo yum install -y httpd php # устанавливаем Apache и PHP
+  sudo firewall-cmd --permanent --add-service=http
+  sudo firewall-cmd --permanent --add-port={80,443,8080,8081}/tcp
+  sudo firewall-cmd --reload
   sudo chmod -R 755 /tmp/ # устанавливаем права доступа к папке /tmp/
   sudo yum install -y unzip # устанавливаем распаковщик
   sudo wget https://github.com/Stanisz1/devops-hometasks/archive/refs/heads/master.zip -O /tmp/git.zip # скачиваем репозиторий
