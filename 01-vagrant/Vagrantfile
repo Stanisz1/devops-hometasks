@@ -1,0 +1,45 @@
+Vagrant.configure("2") do |config|
+  # названия бокса в vagrant claude
+   config.vm.box = "generic/centos8" 
+   config.vm.network "forwarded_port", guest: 80, host: 8080
+  # пробрасываем порты для доступа к сайту из локальной сети и с локального компьютера
+  config.vm.network "private_network", ip: "192.168.33.10" # присваиваем ВМ статический IP-адрес в локальной сети 
+  config.vm.network "forwarded_port", guest: 8080, host: 8081
+   
+   config.vm.provider "virtualbox" do |vb| # конфигурируем провайдера VirtualBox
+    vb.name = "centos_task_1" # задаем имя ВМ
+    vb.memory = "512" # задаем количество оперативной памяти для ВМ
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL # выполняем команды в Shell при создании ВМ
+  sudo yum update -y # обновляем пакеты
+  sudo yum install -y git # устанавливаем Git
+  sudo yum install -y httpd php # устанавливаем Apache и PHP
+  git config --global user.name "Stanisz1" # задаем имя пользователя для Git
+    git config --global user.email "atrohov97@gmail.com" # задаем email пользователя для Git
+    git config --list # выводим настройки Git
+  sudo yum -y install policycoreutils-python-utils
+  sudo semanage port -m -t http_port_t -p tcp 8080
+  sudo semanage port -m -t http_port_t -p tcp 8081
+  sudo firewall-cmd --permanent --add-service=http
+  sudo firewall-cmd --permanent --add-port={80,443,8080,8081}/tcp
+  sudo firewall-cmd --reload
+  sudo chmod -R 755 /tmp/ # устанавливаем права доступа к папке /tmp/
+  sudo yum install -y unzip # устанавливаем распаковщик
+  sudo wget https://github.com/Stanisz1/devops-hometasks/archive/refs/heads/master.zip -O /tmp/git.zip # скачиваем репозиторий
+  sudo unzip /tmp/git.zip -d /tmp/ # распаковываем архив
+  sudo mkdir -p /var/www/html/php  /etc/httpd/sites-enabled /etc/httpd/sites-available # создаем директорию для PHP-файлов
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/index.html /var/www/html/ # копируем файл index.html в директорию /var/www/html/
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/index.php /var/www/html/php # копируем файл index.php в директорию /var/www/html/php/
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/httpd.conf /etc/httpd/conf/ # копируем файл httpd.conf в директорию /etc/httpd/conf/
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/localhost.conf /etc/httpd/sites-enabled/
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/localhost.conf /etc/httpd/sites-available/
+    sudo cp /tmp/devops-hometasks-master/01-vagrant/localhost.conf /etc/httpd/conf.d/ # копируем файл localhost.conf в директорию /etc/httpd/conf.d/
+    sudo systemctl restart httpd # перезапускаем Apache
+SHELL
+
+config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/id_rsa.pub" # копируем открытый ключ в ВМ
+config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa" # копируем закрытый ключ в ВМ
+
+end
+ 
