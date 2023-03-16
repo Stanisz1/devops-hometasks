@@ -1,0 +1,52 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+  - name: Install Nginx
+    apt:
+      name: nginx
+      state: present
+
+  - name: Enable Nginx service
+    systemd:
+      name: nginx
+      enabled: yes
+      masked: no
+
+  - name: Remove default Nginx site configuration
+    file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+
+  - name: Add index.html site
+    template:
+      src: templates/index.html
+      dest: "/var/www/html/index.html"
+
+  - name: Add index.php site
+    template:
+      src: templates/index.php
+      dest: "/var/www/html/index.php"
+
+  - name: Install PHP
+    apt:
+      name:
+        - php7.0
+        - php7.0-fpm
+        - php7.0-mysql
+        - php7.0-curl
+        - php7.0-gd
+        - php7.0-json
+        - php7.0-msgpack
+        - php7.0-mcrypt
+        - php7.0-intl
+        - php7.0-mbstring
+        - php7.0-xmlrpc
+        - php7.0-soap
+      state: present
+
+  - name: Restart PHP-FPM service
+    service:
+      name: php7.0-fpm
+      state: restarted
