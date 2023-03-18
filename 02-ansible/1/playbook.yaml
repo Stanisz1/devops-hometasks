@@ -14,7 +14,7 @@
         name: apache2
         state: present
 
-    - name: Create a directory /var/www/html/
+    - name: Create a directory /var/www/html/p
       ansible.builtin.file:
         path: /var/www/html/p
         state: directory
