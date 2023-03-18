@@ -1,52 +1,73 @@
 ---
-- hosts: all
-  become: true
+- name: master
+  hosts: all
+  become: yes
+
+  vars:
+    port_80: 8080
+    port_8080: 8081
+    mst: 000-default
 
   tasks:
-  - name: Install Nginx
+  - name: Install Apache
     apt:
-      name: nginx
+      name: apache2
       state: present
 
-  - name: Enable Nginx service
-    systemd:
-      name: nginx
-      enabled: yes
-      masked: no
+  - name: Create a directory /var/www/html/
+    ansible.builtin.file:
+      path: /var/www/html/
+      state: directory
+      mode: '0755'  
 
-  - name: Remove default Nginx site configuration
-    file:
-      path: /etc/nginx/sites-enabled/default
-      state: absent
+  - name: Copy file /var/www/html/index.html
+    ansible.builtin.copy:
+      src: /vagrant/index.html
+      dest: /var/www/html/index.html
+      force: true
+      owner: root
+      group: root
+      mode: '0644'    
 
-  - name: Add index.html site
-    template:
-      src: templates/index.html
-      dest: "/var/www/html/index.html"
+  - name: Copy file /var/www/html/index.php
+    ansible.builtin.copy:
+      src: /vagrant/index.php
+      dest: /var/www/html/index.php
+      force: true
+      owner: root
+      group: root
+      mode: '0644'
 
-  - name: Add index.php site
-    template:
-      src: templates/index.php
-      dest: "/var/www/html/index.php"
+  - name: enabled mod_rewrite
+    apache2_module: name=rewrite state=present
+    notify:
+      - restart apache2
 
-  - name: Install PHP
-    apt:
-      name:
-        - php7.0
-        - php7.0-fpm
-        - php7.0-mysql
-        - php7.0-curl
-        - php7.0-gd
-        - php7.0-json
-        - php7.0-msgpack
-        - php7.0-mcrypt
-        - php7.0-intl
-        - php7.0-mbstring
-        - php7.0-xmlrpc
-        - php7.0-soap
-      state: present
+  - name: apache2 listen on port {{ port_80 }}
+    lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen 80$" line="Listen {{ port_80 }}" state=present
+    notify:
+      - restart apache2
 
-  - name: Restart PHP-FPM service
-    service:
-      name: php7.0-fpm
-      state: restarted
+  - name: apache2 listen on port {{ port_8080 }}
+    lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen 8081" line="Listen {{ port_8080 }}" state=present insertafter="^Listen 8080$"
+    notify:
+      - restart apache2
+
+  - name: apache2 virtualhost on port {{ port_80 }}
+    lineinfile: dest=/etc/apache2/sites-available/000-default.conf regexp="^<VirtualHost \*:" line="<VirtualHost *:{{ port_80 }}>"
+    notify:
+      - restart apache2
+
+  - name: create virtual host file
+    template: src=/vagrant/000-default.conf dest=/etc/apache2/sites-available/{{ mst }}.conf
+
+  - name: generate symlinks to {{ mst }}.conf
+    command: a2ensite {{ mst }}
+    args:
+      creates: /etc/apache2/sites-enabled/{{ mst }}.conf
+    notify:
+      - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted

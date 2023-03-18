@@ -1,0 +1,7 @@
+192.168.50.5
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=vagrant
+ansible_password=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

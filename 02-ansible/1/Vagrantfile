@@ -1,15 +1,27 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "generic/debian9" 
-  
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "playbook.yaml"
+  config.vm.box = "generic/debian11"
+  config.vm.synced_folder  ".", "/vagrant", disabled: false
+
+  config.vm.provider "virtualbox" do |vb|
+      vb.memory = "512"
   end
 
-  config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 8080, host: 8081
-  
-  config.vm.provider "virtualbox" do |vb| 
-    vb.name = "task_2" 
-    vb.memory = "512" 
+  config.vm.define "master", primary: true do |master|
+  master.vm.network "private_network", ip: "192.168.50.4"
+
+    master.vm.provision "shell", inline: <<-SHELL
+          apt-get update
+          apt-get install -y vim  ansible sshpass
+          ansible-playbook -i inventory playbook.yaml
+      SHELL
   end
+
+config.vm.define "slave", primary: true do |slave|
+slave.vm.network "private_network", ip: "192.168.50.5"
+
+    slave.vm.provision "shell", inline: <<-SHELL
+        service sshd restart
+       SHELL
+  end
+
 end
