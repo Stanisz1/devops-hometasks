@@ -1,0 +1,56 @@
+---
+- name: static
+  hosts: static
+  become: yes
+
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: changing rights
+      file:
+        path: /var/www
+        mode: '0755'
+
+    - name: Copy file /var/www/html/index.html
+      ansible.builtin.copy:
+        src: /vagrant/index.html
+        dest: /var/www/html/index.html
+        force: true
+        owner: root
+        group: root
+        mode: '0644'
+
+
+- name: dynamic 
+  hosts: dynamic
+  become: yes
+
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: changing rights
+      file:
+        path: /var/www
+        mode: '0755'
+
+    - name: remove index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: Copy file /var/www/html/index.php
+      ansible.builtin.copy:
+        src: /vagrant/index.php
+        dest: /var/www/html/index.php
+        force: true
+        owner: root
+        group: root
+        mode: '0644'
+
+  
