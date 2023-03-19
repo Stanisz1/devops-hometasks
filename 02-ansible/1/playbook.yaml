@@ -10,8 +10,10 @@
 
   tasks:
     - name: Install Apache
-      apt:
-        name: apache2
+       pkg:
+        - apache2
+        - php
+        - libapache2-mod-php
         state: present
 
     - name: Create a directory /var/www/html/p
