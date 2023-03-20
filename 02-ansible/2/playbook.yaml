@@ -31,7 +31,7 @@
   tasks:
     - name: Install Apache
       apt:
-         pkg:
+        pkg:
         - apache2
         - php
         - libapache2-mod-php
