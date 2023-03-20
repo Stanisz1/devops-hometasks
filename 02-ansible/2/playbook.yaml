@@ -30,6 +30,7 @@
 
   tasks:
     - name: Install Apache
+      become: yes
       apt:
         pkg:
         - apache2
@@ -55,5 +56,6 @@
         owner: root
         group: root
         mode: '0644'
+
 
   
