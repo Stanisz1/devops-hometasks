@@ -85,11 +85,5 @@
      - name: download r10k.yaml
        shell: sudo curl -L -o /etc/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
 
-     - name: create new 
-       shell: sudo mkdir /etc/puppetlabs/r10k
-
-     - name: mv
-       shell: sudo mv /etc/r10k.yaml /etc/puppetlabs/r10k/r10k.yaml
-
      - name: active r10k
        shell: sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
