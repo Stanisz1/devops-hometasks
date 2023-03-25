@@ -13,20 +13,20 @@
          state: latest
          
      - name: adds to puppet.config
-       shell:  echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf    
+       shell: echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf    
 
      - name: add to hosts master.puppet
        shell: echo "192.168.33.10 master.puppet" >> /etc/hosts    
 
      - name: add to puppet.config
-       shell: echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
+       action: shell echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
 
      - name: start puppet
        service:
         name: puppet
         state: started
 
-        
+
 - name: install to master
   become: yes
   hosts: localhost
@@ -43,8 +43,8 @@
 
      - name: stop firewalld
        service: 
-         name: firewalld
-         state: stopped
+          name: firewalld
+          state: stopped
          
      - name: add to hosts slave1
        shell: echo "192.168.33.11 slave1.puppet" >> /etc/hosts
@@ -68,13 +68,8 @@
        service:
          name: puppetserver
          state: started
-
-     - name: start puppet
-       service:
-         name: puppet
-         state: started
          
-     - name: add host to doverenie
+     - name: add host 
        shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
 
      - name: download r10k.yaml
