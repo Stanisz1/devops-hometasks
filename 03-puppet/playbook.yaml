@@ -26,6 +26,10 @@
         name: puppet
         state: started
 
+        
+- name: install to master
+  become: yes
+  hosts: localhost
 
   tasks:
      - name: add repositoriy to master puppetserver
