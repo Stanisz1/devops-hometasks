@@ -39,7 +39,7 @@
   tasks:
      - name: add repositoriy to master puppetserver
        shell:  sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-     - name: add repositoriy to master 2
+     - name: add repositoriy to master 
        shell: sudo dnf -y install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
      - name: install puppetserver
        yum:
