@@ -41,10 +41,10 @@
 
   tasks:
     - name: add repository to master puppetserver
-      shell: sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+      shell: sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
-    - name: add repository to master 2
-      shell: sudo dnf -y install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+    - name: add repository to master 
+      shell: sudo yum -y install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
 
     - name: install puppetserver
       yum:
@@ -61,6 +61,9 @@
 
     - name: add to hosts slave2
       shell: echo "192.168.33.12 slave2.puppet" >> /etc/hosts
+
+    - name: install rubygems
+      shell: sudo /opt/puppetlabs/puppet/bin/ yum install rubygems -y
 
     - name: install r10k
       shell: sudo /opt/puppetlabs/puppet/bin/gem install r10k
@@ -85,10 +88,10 @@
         state: started
 
     - name: add host to doverenie
-      shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/04-puppet/autosign.conf
+      shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://github.com/Stanisz1/devops-hometasks/blob/master/03-puppet/autosign.conf
 
     - name: download r10k.yaml
-      shell: sudo curl -L -o /etc/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/04-puppet/r10k.yaml
+      shell: sudo curl -L -o /etc/r10k.yaml  https://github.com/Stanisz1/devops-hometasks/blob/master/03-puppet/r10k.yaml
 
     - name: test1.from git
       shell: sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p

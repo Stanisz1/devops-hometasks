@@ -29,6 +29,6 @@
            src: /vagrant/inventory.yaml
            dest: /home/vagrant/inventory.yaml
 
-      - name: use playbook and inventory.yaml
+      - name: use playbook and inventory
         become: yes
-        shell: ansible-playbook inventory.yaml -i playbook.yaml  
+        shell: ansible-playbook playbook.yaml -i inventory.yaml  
