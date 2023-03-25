@@ -83,7 +83,7 @@
        shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
 
      - name: download r10k.yaml
-       shell: sudo curl -L -o /etc/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
+       shell: sudo curl -L -o/etc/puppetlabs/r10k/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
 
      - name: active r10k
        shell: sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
