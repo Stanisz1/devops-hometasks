@@ -26,9 +26,9 @@
 
       - name: inventory to All
         copy:
-           src: /vagrant/inventory.yaml
-           dest: /home/vagrant/inventory.yaml
+           src: /vagrant/inventory
+           dest: /home/vagrant/inventory
 
-      - name: use playbook
+      - name: use playbook and inventory.yaml
         become: yes
-        shell: ansible-playbook playbook.yaml -i inventory.yaml
+        shell: ansible-playbook inventory.yaml -i playbook.yaml  
