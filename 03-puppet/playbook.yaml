@@ -16,10 +16,7 @@
        action:  shell echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf    
 
      - name: add to hosts master.puppet
-       action: shell  echo "192.168.33.10 master.puppet" >> /etc/hosts
-
-     - name: add runinterval to puppet.config
-      action: shell echo "runinterval = 1m" >> /etc/puppetlabs/puppet/puppet.conf    
+       action: shell  echo "192.168.33.10 master.puppet" >> /etc/hosts    
 
      - name: add to puppet.config
        action: shell echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
@@ -78,10 +75,10 @@
          state: started
          
      - name: add host to doverenie
-       action: shell sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://github.com/Stanisz1/devops-hometasks/blob/master/03-puppet/autosign.conf
+       action: shell sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
 
      - name: download r10k.yaml
-       action: shell sudo curl -L -o /etc/r10k.yaml https://github.com/Stanisz1/devops-hometasks/blob/master/03-puppet/r10k.yaml
+       action: shell sudo curl -L -o /etc/r10k.yaml https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
 
      - name: on r10k
        action: shell sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
