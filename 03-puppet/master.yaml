@@ -26,8 +26,8 @@
 
       - name: inventory to All
         copy:
-           src: /vagrant/inventory
-           dest: /home/vagrant/inventory
+           src: /vagrant/inventory.yaml
+           dest: /home/vagrant/inventory.yaml
 
       - name: use playbook and inventory.yaml
         become: yes
