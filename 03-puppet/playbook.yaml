@@ -5,7 +5,7 @@
 
   tasks:
      - name: add repositoriy to agent slave1
-       action: shell rpm -Uvh https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
+       action: rpm -Uvh https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
 
      - name: install puppet_agent
        yum:
@@ -27,19 +27,15 @@
         state: started
 
 
-- name: install to master
-  become: yes
-  hosts: localhost
-
   tasks:
      - name: add repositoriy to master puppetserver
-       action: shell  sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-     - name: add repositoriy to master 
-       action: shell sudo dnf -y install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+       shell:  sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+     - name: add repositoriy to master 2
+       shell: sudo dnf -y install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
      - name: install puppetserver
        yum:
-         name: puppetserver
-         state: latest
+          name: puppetserver
+          state: latest
 
      - name: stop firewalld
        service: 
@@ -47,22 +43,22 @@
          state: stopped
          
      - name: add to hosts slave1
-       action: shell  echo "192.168.33.11 slave1.puppet" >> /etc/hosts
+       action: echo "192.168.33.11 slave1.puppet" >> /etc/hosts
        
      - name: add to hosts slave2
-       action: shell  echo "192.168.33.12 slave2.puppet" >> /etc/hosts
+       action: echo "192.168.33.12 slave2.puppet" >> /etc/hosts
 
      - name: install r10k
-       action: shell sudo /opt/puppetlabs/puppet/bin/gem install r10k
+       action: sudo /opt/puppetlabs/puppet/bin/gem install r10k
        
      - name: resize memory
-       action: shell sudo sed -i 's/-Xms2g -Xmx2g/-Xms256m -Xmx256m/g' /etc/sysconfig/puppetserver
+       action: sudo sed -i 's/-Xms2g -Xmx2g/-Xms256m -Xmx256m/g' /etc/sysconfig/puppetserver
        
      - name: adds to puppet.config
-       action: shell echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf  
+       action: echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf  
        
      - name: add to puppet.config
-       action: shell echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
+       action: echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
 
      - name: start puppetserver
        service:
@@ -75,10 +71,10 @@
          state: started
          
      - name: add host to doverenie
-       action: shell sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
+       action: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
 
      - name: download r10k.yaml
-       action: shell sudo curl -L -o /etc/r10k.yaml https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
+       action: sudo curl -L -o /etc/r10k.yaml https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
 
      - name: on r10k
-       action: shell sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
+       action: sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
