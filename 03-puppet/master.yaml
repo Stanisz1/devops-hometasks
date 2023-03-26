@@ -24,7 +24,7 @@
            src: /vagrant/playbook.yaml
            dest: /home/vagrant/playbook.yaml
 
-      - name: inventory to all
+      - name: inventory for all
         copy:
            src: /vagrant/inventory.yaml
            dest: /home/vagrant/inventory.yaml
