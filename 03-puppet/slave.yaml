@@ -4,9 +4,55 @@
 
   tasks:
     - name: to slave
-      shell:  sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication no'
+        line: 'PasswordAuthentication yes'
+      become: yes
 
     - name: to slave 2
       service:
         name: sshd
         state: restarted
+
+- name: install  slave1 and slave2
+  become: yes
+  hosts: slave1 , slave2
+
+  tasks:
+     - name: add repositoriy agent slave1
+       yum_repository:
+        name: puppet6
+        description: Puppet Labs PC1 Repository el 8 - $basearch
+        baseurl: https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
+        gpgkey: https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
+      become: yes
+
+     - name: install puppet_agent
+       yum:
+         name: puppet-agent
+         state: latest
+
+     - name: adds  puppet.config
+        lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        regexp: '^#?[\s]*server = .*$'
+        line: 'server = master.puppet'
+      become: yes
+
+     - name: add  hosts master.puppet
+       lineinfile:
+        path: /etc/hosts
+        regexp: '^192\.168\.33\.10.*$'
+        line: '192.168.33.10 master.puppet'
+      become: yes
+
+     - name: start puppet
+       service:
+        name: puppet
+        state: started
+
+     - name: stop firewalld
+       service:
+        name: firewalld
+        state: stopped
