@@ -17,16 +17,6 @@
         option: host_key_checking
         value: False
 
-    - name: playbook for master
-      copy:
-        src: /vagrant/master.yaml
-        dest: /home/vagrant/master.yaml
-
-    - name: inventory for all
-      copy:
-        src: /vagrant/inventory.yaml
-        dest: /home/vagrant/inventory.yaml
-
 - name: install  master
   become: yes
   hosts: localhost
