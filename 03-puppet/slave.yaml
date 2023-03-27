@@ -28,20 +28,18 @@
          name: puppet-agent
          state: latest
 
-     - name: Add puppet.config
-       lineinfile:
-        path: /etc/puppetlabs/puppet/puppet.conf
-        regexp: '^#?[\s]*server = .*$'
-        line: 'server = master.puppet'
+     - name: add puppet.config
        become: yes
-
-     - name: Add master.puppet to hosts file
        lineinfile:
-        path: /etc/hosts
-        regexp: '^192\.168\.33\.10.*$'
-        line: '192.168.33.10 master.puppet'
-       become: yes
-
+         path: /etc/puppetlabs/puppet/puppet.conf
+         insertafter: ^\[agent\]
+         line: "server = master.puppet"
+     
+     - name: add hosts master.puppet
+       lineinfile:
+         dest: /etc/hosts
+         line: '192.168.33.10 master.puppet'
+     
      - name: Start puppet service
        service:
         name: puppet

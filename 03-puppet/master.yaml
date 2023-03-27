@@ -32,71 +32,62 @@
   hosts: localhost
 
   tasks:
-
-    - name: Check if puppet6 repo is already installed
-      shell: dnf repoinfo puppet6
-      register: repo_check
-      ignore_errors: true
-      
-    - name: Disable puppet6 repo if it exists
-      ini_file:
-        dest: /etc/yum.repos.d/puppet6.repo
-        section: 'puppet6'
-        option: 'enabled'
-        value: '0'
-      when: repo_check.rc == 0
+    - name: add repository master puppetserver
+      dnf:
+        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+        state: present
     
-    - name: Install puppetserver and add repositories if puppet6 repo does not exist
-      block:
-        - name: Add EPEL repo to master
-          dnf:
-            name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-            state: present
-          
-        - name: Add Puppet Labs repo to master
-          dnf:
-            name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
-            state: present
-          
-        - name: Install puppetserver
-          yum:
-            name: puppetserver
-            state: latest
-      when: repo_check.rc != 0 and ansible_pkg_mgr == "dnf"
+    - name: add repository to master
+      dnf:
+        name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+        state: present
     
-
-
+    - name: install puppetserver
+      yum:
+        name: puppetserver
+        state: latest 
+    
     - name: stop firewalld
       service:
         name: firewalld
         state: stopped
 
-    - name: add hosts slave1 and slave2
+    - name: add hosts slave1
       lineinfile:
         path: /etc/hosts
-        regexp: '^192\.168\.33\.1[12].*$'
-        line: '{{ item }} slave{{ loop.index }}.puppet'
-      loop:
-        - '192.168.33.11'
-        - '192.168.33.12'
-
+        line: '192.168.33.11 slave1.puppet'
+        
+    - name: add hosts slave2
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.12 slave2.puppet'
+    
     - name: install r10k
-      command: '/opt/puppetlabs/puppet/bin/gem install r10k'
-      become: true
-
+      package:
+        name: r10k
+        state: present
+        executable: /opt/puppetlabs/puppet/bin/gem
+    
     - name: resize memory
-      lineinfile:
+      replace:
         path: /etc/sysconfig/puppetserver
-        regexp: '^JAVA_ARGS.*$'
-        line: 'JAVA_ARGS="-Xms256m -Xmx256m"'
-      become: true
-
-    - name: add puppet.config
-      lineinfile:
+        regexp: '-Xms2g -Xmx2g'
+        replace: '-Xms256m -Xmx256m'
+    
+    - name: adds puppet.config
+      blockinfile:
         path: /etc/puppetlabs/puppet/puppet.conf
-        regexp: '^#?[\s]*server = .*$'
-        line: 'server = master.puppet'
-
+        block: |
+          [agent]
+        insertafter: EOF
+        
+    - name: add puppet.config
+      blockinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        block: |
+          server = master.puppet
+        insertafter: '\[agent\]'    
+    
     - name: start puppetserver
       service:
         name: puppetserver
@@ -113,7 +104,6 @@
         dest: /etc/puppetlabs/puppet/autosign.conf 
         mode: '0644'
     
-
     - name: download my r10k.yaml 
       get_url:
         url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
