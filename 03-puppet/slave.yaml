@@ -13,39 +13,3 @@
       service:
         name: sshd
         state: restarted
-
-- name: Install Puppet agent on slave1 and slave2
-  become: yes
-  hosts: slave1, slave2
-  tasks:
-     - name: add repository agent slave1
-       dnf:
-         name: https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
-         state: present
-     
-     - name: Install puppet-agent package
-       yum:
-         name: puppet-agent
-         state: latest
-
-     - name: add puppet.config
-       become: yes
-       lineinfile:
-         path: /etc/puppetlabs/puppet/puppet.conf
-         insertafter: ^\[agent\]
-         line: "server = master.puppet"
-     
-     - name: add hosts master.puppet
-       lineinfile:
-         dest: /etc/hosts
-         line: '192.168.33.10 master.puppet'
-     
-     - name: Start puppet service
-       service:
-        name: puppet
-        state: started
-
-     - name: Stop firewalld service
-       service:
-        name: firewalld
-        state: stopped

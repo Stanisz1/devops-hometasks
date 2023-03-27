@@ -1,35 +1,67 @@
+---
+- name: Install Puppet agent on slave1 and slave2
+  become: yes
+  hosts: slave1, slave2
+  tasks:
+    - name: add repository agent slave1
+      dnf:
+        name: https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
+        state: present
+     
+    - name: Install puppet-agent package
+      yum:
+        name: puppet-agent
+        state: latest
+
+    - name: add puppet.config
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        insertafter: ^\[agent\]
+        line: "server = master.puppet"
+     
+    - name: add hosts master.puppet
+      lineinfile:
+        dest: /etc/hosts
+        line: '192.168.33.10 master.puppet'
+     
+    - name: Start puppet service
+      service:
+        name: puppet
+        state: started
+
+    - name: Stop firewalld service
+      service:
+        name: firewalld
+        state: stopped
+
+
 - name: master
   become: yes
   hosts: all
 
   tasks:
     - name: install sshpass
-      become: yes
       yum:
         name: sshpass
         state: present
 
     - name: disable key check
-      become: yes
       ini_file:
         path: /etc/ansible/ansible.cfg
         section: defaults
         option: host_key_checking
         value: False
 
-- name: install  master
-  become: yes
+- name: install master
   hosts: localhost
 
   tasks:
     - name: add repository master puppetserver
-      become: yes
       dnf:
         name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
         state: present
     
     - name: add repository to master
-      become: yes
       dnf:
         name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
         state: present
@@ -55,14 +87,12 @@
         line: '192.168.33.12 slave2.puppet'
     
     - name: install r10k
-      become: yes
       package:
         name: r10k
         state: present
         executable: /opt/puppetlabs/puppet/bin/gem
     
     - name: resize memory
-      become: yes
       replace:
         path: /etc/sysconfig/puppetserver
         regexp: '-Xms2g -Xmx2g'
@@ -108,4 +138,3 @@
 
     - name: activate r10k
       command: '/opt/puppetlabs/puppet/bin/r10k deploy environment -p'
-      become: true
