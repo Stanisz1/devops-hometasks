@@ -1,58 +1,56 @@
----
- - name: master
-   become: yes
-   hosts: all
+- name: master
+  become: yes
+  hosts: all
 
-   tasks:
+  tasks:
+    - name: install sshpass
+      become: yes
+      yum:
+        name: sshpass
+        state: present
 
-      - name: install sshpass
-        become: yes
-        yum:
-          name: sshpass
-          state: present
+    - name: disable key check
+      become: yes
+      ini_file:
+        path: /etc/ansible/ansible.cfg
+        section: defaults
+        option: host_key_checking
+        value: False
 
-      - name: disable key check
-        become: yes
-        ini_file:
-          path: /etc/ansible/ansible.cfg
-          section: defaults
-          option: host_key_checking
-          value: False
+    - name: playbook for all
+      copy:
+        src: /vagrant/playbook.yaml
+        dest: /home/vagrant/playbook.yaml
 
-      - name: playbook for all
-        copy:
-           src: /vagrant/playbook.yaml
-           dest: /home/vagrant/playbook.yaml
-
-      - name: inventory for all
-        copy:
-           src: /vagrant/inventory.yaml
-           dest: /home/vagrant/inventory.yaml
-  
+    - name: inventory for all
+      copy:
+        src: /vagrant/inventory.yaml
+        dest: /home/vagrant/inventory.yaml
 
 - name: install  master
   become: yes
   hosts: localhost
 
   tasks:
+    - name: add Puppet repository
       yum_repository:
         name: puppet6
         description: Puppet Labs PC1 Repository el 8 - $basearch
         baseurl: https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
         gpgkey: https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
 
-     - name: install puppetserver
-       yum:
-         name: puppetserver
-         state: latest
+    - name: install puppetserver
+      yum:
+        name: puppetserver
+        state: latest
 
-     - name: stop firewalld
-       service:
-         name: firewalld
-         state: stopped
+    - name: stop firewalld
+      service:
+        name: firewalld
+        state: stopped
 
-     - name: add  hosts slave1 and slave2
-       lineinfile:
+    - name: add hosts slave1 and slave2
+      lineinfile:
         path: /etc/hosts
         regexp: '^192\.168\.33\.1[12].*$'
         line: '{{ item }} slave{{ loop.index }}.puppet'
@@ -60,39 +58,39 @@
         - '192.168.33.11'
         - '192.168.33.12'
 
-     - name: install r10k
-        command: '/opt/puppetlabs/puppet/bin/gem install r10k'
+    - name: install r10k
+      command: '/opt/puppetlabs/puppet/bin/gem install r10k'
       become: true
 
-     - name: resize memory
-        lineinfile:
+    - name: resize memory
+      lineinfile:
         path: /etc/sysconfig/puppetserver
         regexp: '^JAVA_ARGS.*$'
         line: 'JAVA_ARGS="-Xms256m -Xmx256m"'
       become: true
 
-     - name: adds  puppet.config
-       lineinfile:
+    - name: add puppet.config
+      lineinfile:
         path: /etc/puppetlabs/puppet/puppet.conf
         regexp: '^#?[\s]*server = .*$'
         line: 'server = master.puppet'
 
-     - name: start puppetserver
-       service:
-         name: puppetserver
-         state: started
+    - name: start puppetserver
+      service:
+        name: puppetserver
+        state: started
 
-     - name: start puppet
-       service:
-         name: puppet
-         state: started
+    - name: start puppet
+      service:
+        name: puppet
+        state: started
 
-     - name: add host  my conf
-       shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
+    - name: add host my conf
+      shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
 
-     - name: download my r10k.yaml 
-       shell: sudo curl -L -o /etc/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
+    - name: download my r10k.yaml 
+      shell: sudo curl -L -o /etc/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
 
-     - name: active r10k
-        command: '/opt/puppetlabs/puppet/bin/r10k deploy environment -p'
+    - name: activate r10k
+      command: '/opt/puppetlabs/puppet/bin/r10k deploy environment -p'
       become: true

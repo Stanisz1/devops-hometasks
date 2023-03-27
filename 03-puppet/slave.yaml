@@ -1,58 +1,56 @@
 ---
-- name:
+- name: Configure SSH on slave
   hosts: all
-
   tasks:
-    - name: to slave
+    - name: Update sshd_config
       lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^PasswordAuthentication no'
         line: 'PasswordAuthentication yes'
       become: yes
 
-    - name: to slave 2
+    - name: Restart SSH service
       service:
         name: sshd
         state: restarted
 
-- name: install  slave1 and slave2
+- name: Install Puppet agent on slave1 and slave2
   become: yes
-  hosts: slave1 , slave2
-
+  hosts: slave1, slave2
   tasks:
-     - name: add repositoriy agent slave1
+     - name: Add Puppet repository for slave1
        yum_repository:
         name: puppet6
         description: Puppet Labs PC1 Repository el 8 - $basearch
         baseurl: https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
         gpgkey: https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
-      become: yes
+       become: yes
 
-     - name: install puppet_agent
+     - name: Install puppet-agent package
        yum:
          name: puppet-agent
          state: latest
 
-     - name: adds  puppet.config
-        lineinfile:
+     - name: Add puppet.config
+       lineinfile:
         path: /etc/puppetlabs/puppet/puppet.conf
         regexp: '^#?[\s]*server = .*$'
         line: 'server = master.puppet'
-      become: yes
+       become: yes
 
-     - name: add  hosts master.puppet
+     - name: Add master.puppet to hosts file
        lineinfile:
         path: /etc/hosts
         regexp: '^192\.168\.33\.10.*$'
         line: '192.168.33.10 master.puppet'
-      become: yes
+       become: yes
 
-     - name: start puppet
+     - name: Start puppet service
        service:
         name: puppet
         state: started
 
-     - name: stop firewalld
+     - name: Stop firewalld service
        service:
         name: firewalld
         state: stopped
