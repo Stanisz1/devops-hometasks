@@ -32,20 +32,39 @@
   hosts: localhost
 
   tasks:
-    - name: add repository master puppetserver
-      dnf:
-        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-        state: present
-        
-    - name: add repository to master
-      dnf:
-        name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
-        state: present
+  
+    if "{{ ansible_pkg_mgr }}" == "dnf":
+  - name: Check if puppet6 repo is already installed
+    shell: dnf repoinfo puppet6
+    register: repo_check
+    ignore_errors: true
     
-    - name: install puppetserver
-      yum:
-        name: puppetserver
-        state: latest
+  - name: Disable puppet6 repo if it exists
+    ini_file:
+      dest: /etc/yum.repos.d/puppet6.repo
+      section: 'puppet6'
+      option: 'enabled'
+      value: '0'
+    when: repo_check.rc == 0
+    
+  - name: Install puppetserver and add repositories if puppet6 repo does not exist
+    block:
+      - name: Add EPEL repo to master
+        dnf:
+          name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+          state: present
+        
+      - name: Add Puppet Labs repo to master
+        dnf:
+          name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+          state: present
+        
+      - name: Install puppetserver
+        yum:
+          name: puppetserver
+          state: latest
+    when: repo_check.rc != 0
+
 
     - name: stop firewalld
       service:
