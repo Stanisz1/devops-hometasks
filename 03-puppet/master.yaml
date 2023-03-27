@@ -17,10 +17,10 @@
         option: host_key_checking
         value: False
 
-    - name: playbook for all
+    - name: playbook for master
       copy:
-        src: /vagrant/playbook.yaml
-        dest: /home/vagrant/playbook.yaml
+        src: /vagrant/master.yaml
+        dest: /home/vagrant/master.yaml
 
     - name: inventory for all
       copy:
