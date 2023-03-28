@@ -13,12 +13,16 @@
         name: puppet-agent
         state: latest
 
+    - name: adds puppet.config
+      lineinfile:
+       path: /etc/puppetlabs/puppet/puppet.conf
+       line: "[agent]"
+    
     - name: add puppet.config
       lineinfile:
         path: /etc/puppetlabs/puppet/puppet.conf
-        insertafter: ^\[agent\]
         line: "server = master.puppet"
-     
+
     - name: add hosts master.puppet
       lineinfile:
         dest: /etc/hosts
@@ -53,7 +57,7 @@
         value: False
 
 - name: install master
-  hosts: master.puppet
+  hosts: localhost
   become: yes
   tasks:
     - name: add repository master puppetserver
