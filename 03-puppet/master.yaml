@@ -1,34 +1,147 @@
 ---
- - name: master
-   become: yes
-   hosts: all
+- name: Install Puppet agent on slave1 and slave2
+  become: yes
+  hosts: slave1, slave2
+  tasks:
+    - name: add repository agent slave1
+      dnf:
+        name: https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
+        state: present
+     
+    - name: Install puppet-agent package
+      yum:
+        name: puppet-agent
+        state: latest
 
-   tasks:
+    - name: adds puppet.config
+      lineinfile:
+       path: /etc/puppetlabs/puppet/puppet.conf
+       line: "[agent]"
+    
+    - name: add puppet.config
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "server = master.puppet"
 
-      - name: install sshpass
-        become: yes
-        yum:
-          name: sshpass
-          state: present
+    - name: add hosts master.puppet
+      lineinfile:
+        dest: /etc/hosts
+        line: '192.168.33.10 master.puppet'
+     
+    - name: Start puppet service
+      service:
+        name: puppet
+        state: started
 
-      - name: disable key check
-        become: yes
-        ini_file:
-          path: /etc/ansible/ansible.cfg
-          section: defaults
-          option: host_key_checking
-          value: False
+    - name: Stop firewalld service
+      service:
+        name: firewalld
+        state: stopped
 
-      - name: playbook for all
-        copy:
-           src: /vagrant/playbook.yaml
-           dest: /home/vagrant/playbook.yaml
 
-      - name: inventory for all
-        copy:
-           src: /vagrant/inventory.yaml
-           dest: /home/vagrant/inventory.yaml
+- name: master
+  become: yes
+  hosts: all
+  tasks:
+    - name: install sshpass
+      become: yes
+      yum:
+        name: sshpass
+        state: present
 
-      - name: use playbook and inventory
-        become: yes
-        shell: ansible-playbook playbook.yaml -i inventory.yaml  
+    - name: disable key check
+      ini_file:
+        path: /etc/ansible/ansible.cfg
+        section: defaults
+        option: host_key_checking
+        value: False
+
+- name: install master
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: add repository master puppetserver
+      become: yes
+      dnf:
+        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+        state: present
+    
+    - name: add repository to master
+      become: yes
+      dnf:
+        name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+        state: present
+    
+    - name: install puppetserver
+      become: yes
+      yum:
+        name: puppetserver
+        state: latest 
+    
+    - name: stop firewalld
+      service:
+        name: firewalld
+        state: stopped
+
+    - name: add hosts slave1
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.11 slave1.puppet'
+        
+    - name: add hosts slave2
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.12 slave2.puppet'
+    
+    - name: install r10k
+      package:
+        name: r10k
+        state: present
+        executable: /opt/puppetlabs/puppet/bin/gem
+    
+    - name: resize memory
+      replace:
+        path: /etc/sysconfig/puppetserver
+        regexp: '-Xms2g -Xmx2g'
+        replace: '-Xms256m -Xmx256m'
+    
+    - name: adds puppet.config
+      blockinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        block: |
+          [agent]
+        insertafter: EOF
+        
+    - name: add puppet.config
+      blockinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        block: |
+          server = master.puppet
+        insertafter: '\[agent\]'    
+    
+    - name: start puppetserver
+      service:
+        name: puppetserver
+        state: started
+
+    - name: start puppet
+      service:
+        name: puppet
+        state: started
+
+    - name: add host my conf
+      become: yes
+      get_url:
+        url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf 
+        dest: /etc/puppetlabs/puppet/autosign.conf 
+        mode: '0644'
+    
+    - name: download my r10k.yaml 
+      become: yes
+      get_url:
+        url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
+        dest: /etc/r10k.yaml 
+        mode: '0644'  
+
+    - name: activate r10k
+      command: '/opt/puppetlabs/puppet/bin/r10k deploy environment -p' 
