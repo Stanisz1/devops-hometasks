@@ -86,12 +86,8 @@
         path: /etc/hosts
         line: '192.168.33.12 slave2.puppet'
     
-    - name: Install r10k
-      become: true
-      gem:
-       name: r10k
-       executable: /opt/puppetlabs/puppet/bin/gem
-       norc: false
+    - name: install r10k
+      shell: sudo /opt/puppetlabs/puppet/bin/gem install r10k
     
     - name: resize memory
       replace:
