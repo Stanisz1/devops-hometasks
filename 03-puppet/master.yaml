@@ -57,8 +57,9 @@
         value: False
 
 - name: install master
-  hosts: localhost
   become: yes
+  hosts: master
+  
   tasks:
     - name: add repository master puppetserver
       become: yes

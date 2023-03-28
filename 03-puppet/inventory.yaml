@@ -1,5 +1,5 @@
-
-
+[master]
+192.168.33.10 ansible_connection=ssh  ansible_user=vagrant ansible_password=vagrant
 [slave1]
  192.168.33.11 ansible_connection=ssh  ansible_user=vagrant ansible_password=vagrant
 
