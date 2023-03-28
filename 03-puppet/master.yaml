@@ -53,7 +53,7 @@
         value: False
 
 - name: install master
-  hosts: master
+  hosts: master.puppet
   become: yes
   tasks:
     - name: add repository master puppetserver
