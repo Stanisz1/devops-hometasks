@@ -1,0 +1,89 @@
+---
+- name: install  slave1 and slave2
+  become: yes
+  hosts: slave1 , slave2
+
+  tasks:
+     - name: add repositoriy agent slave1
+       shell:  rpm -Uvh https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
+
+     - name: install puppet_agent
+       yum:
+         name: puppet-agent
+         state: latest
+
+     - name: adds  puppet.config
+       shell: echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf
+
+     - name: add  hosts master.puppet
+       shell:  echo "192.168.33.10 master.puppet" >> /etc/hosts
+
+     - name: add  puppet.config
+       action: shell echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
+
+     - name: start puppet
+       service:
+        name: puppet
+        state: started
+
+     - name: stop firewalld
+       service:
+        name: firewalld
+        state: stopped
+
+
+- name: install  master
+  become: yes
+  hosts: localhost
+
+  tasks:
+     - name: add repositoriy  master puppetserver
+       shell:  sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+     - name: add repositoriy to master 
+       shell: sudo dnf -y install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+     - name: install puppetserver
+       yum:
+         name: puppetserver
+         state: latest
+
+     - name: stop firewalld
+       service:
+         name: firewalld
+         state: stopped
+
+     - name: add  hosts slave1
+       shell:  echo "192.168.33.11 slave1.puppet" >> /etc/hosts
+
+     - name: add  hosts slave2
+       shell:  echo "192.168.33.12 slave2.puppet" >> /etc/hosts
+
+     - name: install r10k
+       shell: sudo /opt/puppetlabs/puppet/bin/gem install r10k
+
+     - name: resize memory
+       shell: sudo sed -i 's/-Xms2g -Xmx2g/-Xms256m -Xmx256m/g' /etc/sysconfig/puppetserver
+
+     - name: adds  puppet.config
+       shell: echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf
+
+     - name: add  puppet.config
+       shell: echo "server = master.puppet" >> /etc/puppetlabs/puppet/puppet.conf
+
+     - name: start puppetserver
+       service:
+         name: puppetserver
+         state: started
+
+     - name: start puppet
+       service:
+         name: puppet
+         state: started
+
+     - name: add host  my conf
+       shell: sudo curl -L -o /etc/puppetlabs/puppet/autosign.conf https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf
+
+     - name: download my r10k.yaml 
+       shell: sudo curl -L -o /etc/r10k.yaml  https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
+
+     - name: active r10k
+       shell: sudo /opt/puppetlabs/puppet/bin/r10k deploy environment -p
