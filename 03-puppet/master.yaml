@@ -5,6 +5,36 @@
   tasks:
     - name: add repositoriy agent slave1
       shell:  rpm -Uvh https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
+     
+    - name: Install puppet-agent package
+      yum:
+        name: puppet-agent
+        state: latest
+
+    - name: adds puppet.config
+      lineinfile:
+       path: /etc/puppetlabs/puppet/puppet.conf
+       line: "[agent]"
+    
+    - name: add puppet.config
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "server = master.puppet"
+
+    - name: add hosts master.puppet
+      lineinfile:
+        dest: /etc/hosts
+        line: '192.168.33.10 master.puppet'
+     
+    - name: Start puppet service
+      service:
+        name: puppet
+        state: started
+
+    - name: Stop firewalld service
+      service:
+        name: firewalld
+        state: stopped
 
 
 
