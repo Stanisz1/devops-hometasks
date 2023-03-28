@@ -38,9 +38,9 @@
 - name: master
   become: yes
   hosts: all
-
   tasks:
     - name: install sshpass
+      become: yes
       yum:
         name: sshpass
         state: present
@@ -54,19 +54,22 @@
 
 - name: install master
   hosts: localhost
-
+  become: yes
   tasks:
     - name: add repository master puppetserver
+      become: yes
       dnf:
         name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
         state: present
     
     - name: add repository to master
+      become: yes
       dnf:
         name: https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
         state: present
     
     - name: install puppetserver
+      become: yes
       yum:
         name: puppetserver
         state: latest 
