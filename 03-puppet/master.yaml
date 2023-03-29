@@ -1,7 +1,7 @@
 ---
 - name: Install Puppet agent on slave1 and slave2
   become: yes
-  hosts: slave1, slave2
+  hosts: slave1, slave2, mineserver
   tasks:
      - name: add repositoriy agent slave1
        shell:  rpm -Uvh https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
@@ -61,48 +61,50 @@
   hosts: localhost
   tasks:
     - name: install nginx
-        become: yes
-        yum:
+      become: yes
+      yum:
           name: nginx
           state: latest
 
 
-    - name: add statyc and dynamic in nginx
-      become: yes
-      blockinfile:
-        path: /etc/nginx/sites-available/localhost
-        create: true
-        block: |
-          server {
-              listen 80;
-              listen [::]:8080;
-              server_name 192.168.33.10;
-              location / {
-                  proxy_pass http://192.168.33.11:80;
-              }
-              
-              location / {
-                  proxy_pass http://192.168.33.12:80;
-              }
-              
-          }
-    
-    - name: enabled sites
-      become: yes
-      file:
-        src: /etc/nginx/sites-available/localhost
-        dest: /etc/nginx/sites-enabled/localhost
-        state: link
+    - name: add statyc  in nginx
+      copy:
+        dest: /etc/nginx/conf.d/static.conf
         owner: root
         group: root
-        force: yes
+        content: |
+          server {
+              listen 80;
+              
+              location / {
+                  proxy_pass http://192.168.33.11;
+                  proxy_redirect off;
+              }
+          }
+      
+    
+    - name: add dynamic  in nginx
+      copy:
+        dest: /etc/nginx/conf.d/dynamic.conf
+        owner: root
+        group: root
+        content: |
+          server {
+              listen 81;
+              
+              location / {
+                  proxy_pass http://192.168.33.12;
+                  proxy_redirect off;
+              }
+          }
 
     - name: restart nginx
       become: yes
       systemd:
         state: restarted
         daemon_reload: true
-        name: nginx
+        name: nginx   
+
   
     - name: Disabling SELinux permissive
       command: sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
@@ -114,11 +116,6 @@
       systemd:
         name: nginx
         enabled: yes
-
-    - name: restart
-      command: shutdown -r now
-
-
 
 - name: install master
   hosts: localhost

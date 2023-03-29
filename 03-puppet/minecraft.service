@@ -3,7 +3,7 @@ Description=Minecraft
 
 [Service]
 WorkingDirectory=/opt/minecraft/
-ExecStart=/usr/java/jdk-18.0.2.1/bin/java -Xmx2048M -Xms2048M -jar /opt/minecraft/server.jar nogui
+ExecStart=/usr/java/jdk-18.0.2.1/bin/java -Xmx1024M -Xms1024M -jar /opt/minecraft/server.jar nogui
 Restart=always
 RestartSec=30
 
