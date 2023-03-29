@@ -38,7 +38,7 @@
 
 
 
-- name: master
+- name: all servs
   become: yes
   hosts: all
   tasks:
@@ -54,6 +54,71 @@
         section: defaults
         option: host_key_checking
         value: False
+
+
+- name: master-nginx-puppet
+  become: yes
+  hosts: localhost
+  tasks:
+    - name: install nginx
+        become: yes
+        yum:
+          name: nginx
+          state: latest
+
+
+    - name: add statyc and dynamic in nginx
+      become: yes
+      blockinfile:
+        path: /etc/nginx/sites-available/localhost
+        create: true
+        block: |
+          server {
+              listen 80;
+              listen [::]:8080;
+              server_name 192.168.33.10;
+              location / {
+                  proxy_pass http://192.168.33.11:80;
+              }
+              
+              location / {
+                  proxy_pass http://192.168.33.12:80;
+              }
+              
+          }
+    
+    - name: enabled sites
+      become: yes
+      file:
+        src: /etc/nginx/sites-available/localhost
+        dest: /etc/nginx/sites-enabled/localhost
+        state: link
+        owner: root
+        group: root
+        force: yes
+
+    - name: restart nginx
+      become: yes
+      systemd:
+        state: restarted
+        daemon_reload: true
+        name: nginx
+  
+    - name: Disabling SELinux permissive
+      command: sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
+
+    - name: Disabling SELinux enforcing
+      command: sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+    - name: systemctl enabled nginx
+      systemd:
+        name: nginx
+        enabled: yes
+
+    - name: restart
+      command: shutdown -r now
+
+
 
 - name: install master
   hosts: localhost
@@ -85,6 +150,11 @@
       lineinfile:
         path: /etc/hosts
         line: '192.168.33.12 slave2.puppet'
+
+    - name: add hosts slave2
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.13 mineserver.puppet'    
     
     - name: install r10k
       shell: sudo /opt/puppetlabs/puppet/bin/gem install r10k

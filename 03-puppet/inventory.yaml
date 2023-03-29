@@ -1,9 +1,9 @@
-
-
 [slave1]
 192.168.33.11
 [slave2]
 192.168.33.12
+[mineserver]
+192.168.33.13
 [all:vars]
 ansible_connection=ssh
 ansible_user=vagrant

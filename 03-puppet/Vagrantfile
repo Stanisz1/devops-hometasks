@@ -25,6 +25,15 @@ Vagrant.configure("2") do |config|
       ansible.become = true
     end
   end
+
+  config.vm.define "mineserver.puppet" do |mineserver|
+    mineserver.vm.hostname = "mineserver.puppet"
+    mineserver.vm.network "private_network", ip: "192.168.33.13"
+    mineserver.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "slave.yaml"
+      ansible.become = true
+    end
+  end
   
   config.vm.define "master.puppet" do |master|
     master.vm.hostname = "master.puppet"
