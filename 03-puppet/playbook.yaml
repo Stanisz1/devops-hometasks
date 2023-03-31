@@ -5,10 +5,10 @@
   hosts: slave, mineserver
   tasks:
 
-     - name: add repositoriy agent slave1
+    - name: add repositoriy agent slave1
        shell:  rpm -Uvh https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
 
-      - name: add hosts
+    - name: add hosts
       lineinfile:
         path: /etc/hosts
         line: '192.168.33.10 master.puppet puppet'
