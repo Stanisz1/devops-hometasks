@@ -5,18 +5,6 @@
   hosts: slave1, slave2, mineserver
   tasks:
 
-     - name: Update sshd_config
-       lineinfile:
-          path: /etc/ssh/sshd_config
-          regexp: '^PasswordAuthentication no'
-          line: 'PasswordAuthentication yes'
-       become: yes
-
-     - name: Restart SSH service
-       service:
-          name: sshd
-          state: restarted
-
      - name: add repositoriy agent slave1
        shell:  rpm -Uvh https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
 
