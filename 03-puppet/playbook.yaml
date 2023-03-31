@@ -8,6 +8,25 @@
      - name: add repositoriy agent slave1
        shell:  rpm -Uvh https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
 
+      - name: add hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.10 master.puppet puppet'
+
+    - name:  puppet-server
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "{{item}}"
+      with_items:
+         - '[agent]'
+         - server = master.puppet
+         - runinterval = 1m
+
+    - name: enable Puppetagent
+      service:
+        name: puppet
+        enabled: yes
+        state: started
      - name: install puppet_agent
        yum:
          name: puppet-agent
