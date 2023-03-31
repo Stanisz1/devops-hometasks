@@ -2,7 +2,7 @@
 
 - name: Install Puppet agent on slave1 and slave2
   become: yes
-  hosts: slave1, slave2, mineserver
+  hosts: slave, mineserver
   tasks:
 
      - name: add repositoriy agent slave1
