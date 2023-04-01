@@ -19,11 +19,19 @@
   hosts: master
   become: yes
   tasks:
+    - name: Change ownership of /var/cache/r10k
+      file:
+        path: /var/cache/r10k
+        owner: puppet
+        group: puppet
+        recurse: yes
+        mode: "0655"
 
     - name: Install a list of packages
       dnf:
        name:
         - puppetserver
+        - git
        state: present
 
     - name: Export PATH 
@@ -31,7 +39,7 @@
         dest: /etc/environment
         line: "PATH=/home/vagrant/.local/bin:/home/vagrant/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/opt/puppetlabs/puppet/bin"
 
-    - name: install  r10k
+    - name: install r10k
       shell: /opt/puppetlabs/puppet/bin/gem install r10k
 
     - name: add host my conf
@@ -56,9 +64,9 @@
             :my-org:
               remote: 'https://github.com/Stanisz1/03-puppet-master-task-03.git'  
               basedir: '/etc/puppetlabs/code/environments'
+        dest: /etc/puppetlabs/r10k/r10k.yaml      
 
-
-    - name: Change Ram
+    - name: Change RAM
       become: yes
       replace:
         path: /etc/sysconfig/puppetserver
@@ -106,6 +114,7 @@
 
     - name: Deploy environment
       shell: 'r10k deploy environment -p'
+
 
 - name: Install soft slave
   hosts: slave, mineserver
