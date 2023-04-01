@@ -1,6 +1,0 @@
-:cachedir: '/var/cache/r10k'
-
-:sources:
-  :my-org:
-    remote: 'https://github.com/Stanisz1/03-puppet-master-task-03.git'
-    basedir: '/etc/puppetlabs/code/environments'

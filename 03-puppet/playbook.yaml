@@ -34,17 +34,6 @@
     - name: install  r10k
       shell: /opt/puppetlabs/puppet/bin/gem install r10k
 
-    - name: Create a directory r10k
-      file:
-        path: /etc/puppetlabs/r10k
-        state: directory
-        mode: '0775'
-
-    - name: Touch /etc/puppetlabs/r10k/r10k.yaml
-      file:
-        path: /etc/puppetlabs/r10k/r10k.yaml
-        state: touch
-
     - name: add host my conf
       become: yes
       get_url:
@@ -52,12 +41,22 @@
         dest: /etc/puppetlabs/puppet/autosign.conf 
         mode: '0644'
 
-    - name: download my r10k.yaml 
-      become: yes
-      get_url:
-        url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/r10k.yaml
-        dest: /etc/r10k.yaml 
-        mode: '0644'    
+    - name: Touch /etc/puppetlabs/r10k/r10k.yaml
+      file:
+        path: /etc/puppetlabs/r10k/r10k.yaml
+        state: touch
+
+    - name: add config r10k
+      blockinfile:
+        path: /etc/puppetlabs/r10k/r10k.yaml
+        block: |
+          ---
+          :cachedir: '/var/cache/r10k'
+          :sources:
+            :my-org:
+              remote: 'https://github.com/Stanisz1/03-puppet-master-task-03.git'  
+              basedir: '/etc/puppetlabs/code/environments'
+
 
     - name: Change Ram
       become: yes
@@ -105,9 +104,8 @@
         enabled: yes
         state: started
 
-    - name: active r10k
-      command: /opt/puppetlabs/puppet/bin/r10k deploy environment -p
-      become: yes
+    - name: Deploy environment
+      shell: 'r10k deploy environment -p'
 
 - name: Install soft slave
   hosts: slave, mineserver
