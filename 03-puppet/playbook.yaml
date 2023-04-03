@@ -53,6 +53,7 @@
        name:
         - puppetserver
         - git
+        - sshpass
        state: present
 
     - name: Export PATH 
@@ -76,8 +77,8 @@
       become: yes
       get_url:
           url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf 
-         dest: /etc/puppetlabs/puppet/autosign.conf 
-         mode: '0644'
+          dest: /etc/puppetlabs/puppet/autosign.conf 
+          mode: '0644'
  
     - name: Create a directory r10k
       file:
@@ -127,9 +128,9 @@
     - name: Start service puppetserver
       become: true
       ansible.builtin.service:
-      name: puppetserver.service
-      state: started
-      enabled: yes
+        name: puppetserver.service
+        state: started
+        enabled: yes
 
     - name: sync at github
       become: true

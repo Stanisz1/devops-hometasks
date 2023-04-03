@@ -8,10 +8,10 @@ Vagrant.configure("2") do |config|
     vb.memory = "2048"
   end
 
-  config.vm.provision "shell", inline: <<-shell
+  config.vm.provision "SHELL", inline: <<-SHELL
     sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
     sudo systemctl restart sshd.service
-  shell
+    SHELL
 
   config.vm.define "slave1.puppet" do |slave|
     slave.vm.hostname = "slave1.puppet"
@@ -39,6 +39,11 @@ Vagrant.configure("2") do |config|
       ansible.limit = 'all'
       ansible.inventory_path = "inventory.yaml"
       ansible.become = true
+
+      master.vm.provision :shell, inline: <<-SHELL
+      sed -i "s/^PasswordAuthentication no\$/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+      service sshd restart
+    SHELL
     end
   end
 end
