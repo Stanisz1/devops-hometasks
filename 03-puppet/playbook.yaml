@@ -118,8 +118,6 @@
               basedir: '/etc/puppetlabs/code/environments'
         dest: /etc/puppetlabs/r10k/r10k.yaml      
 
-    
-
     - name: ADD hosts
       lineinfile:
         path: /etc/hosts
