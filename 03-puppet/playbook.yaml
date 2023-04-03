@@ -48,7 +48,19 @@
   become: yes
   tasks:
 
+    - name: Stop firewall
+      service:
+        name: firewalld
+        state: stopped
+
+    - name: Add Puppet repo
+      dnf:
+        name: https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
+        state: present
+        disable_gpg_check: yes    
+
     - name: Install a list of packages
+      become: true
       dnf:
        name:
         - puppetserver
