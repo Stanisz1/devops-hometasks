@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name : config
+  hosts: slave, mineserver
   become: true
   tasks:
 
@@ -13,11 +14,6 @@
       service:
         name: firewalld
         state: stopped
-
-- name: Install soft slave
-  hosts: slave, mineserver
-  become: yes
-  tasks:
 
     - name: install puppetagent
       dnf:
@@ -44,6 +40,9 @@
         enabled: yes
         state: started
 
+
+
+
 - name: Configure master
   hosts: master
   become: yes
@@ -61,16 +60,25 @@
         dest: /etc/environment
         line: "PATH=/home/vagrant/.local/bin:/home/vagrant/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/opt/puppetlabs/puppet/bin"
 
-    - name: install r10k
-      shell: /opt/puppetlabs/puppet/bin/gem install r10k
+    - name: r10k
+      become: true
+      shell:
+        "/opt/puppetlabs/puppet/bin/gem install r10k"
+
+    - name: Change RAM
+      become: yes
+      replace:
+        path: /etc/sysconfig/puppetserver
+        regexp: 'JAVA_ARGS="-Xms2g -Xmx2g'
+        replace: 'JAVA_ARGS="-Xms256m -Xmx256m'
 
     - name: add host my conf
       become: yes
       get_url:
-        url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf 
-        dest: /etc/puppetlabs/puppet/autosign.conf 
-        mode: '0644'
-
+          url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf 
+         dest: /etc/puppetlabs/puppet/autosign.conf 
+         mode: '0644'
+ 
     - name: Create a directory r10k
       file:
         path: /etc/puppetlabs/r10k
@@ -94,19 +102,13 @@
               basedir: '/etc/puppetlabs/code/environments'
         dest: /etc/puppetlabs/r10k/r10k.yaml      
 
-    - name: Change RAM
-      become: yes
-      replace:
-        path: /etc/sysconfig/puppetserver
-        regexp: 'JAVA_ARGS="-Xms2g -Xmx2g'
-        replace: 'JAVA_ARGS="-Xms256m -Xmx256m'
+    
 
     - name: ADD hosts
       lineinfile:
         path: /etc/hosts
         line: "{{item}}"
       with_items:
-         - '192.168.33.10 master.puppet'
          - '192.168.33.11 slave1.puppet'
          - '192.168.33.12 slave2.puppet'
          - '192.168.33.13 mineserver.puppet'
@@ -122,25 +124,19 @@
         - { sect: "agent", option: "server", value: "master.puppet" }
         - { sect: "agent", option: "runinterval", value: "1m" }
 
-    - name: Stop and disable firewalld
-      service:
-        name: firewalld
-        state: stopped
-        enabled: False
+    - name: Start service puppetserver
+      become: true
+      ansible.builtin.service:
+      name: puppetserver.service
+      state: started
+      enabled: yes
 
-    - name: Enable Puppetserver
-      service:
-        name: puppetserver
-        enabled: yes
-        state: started
+    - name: sync at github
+      become: true
+      shell:
+        "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
 
-    - name: Enable Puppetagent
-      service:
-        name: puppet
-        enabled: yes
-        state: started
-
-    - name: Deploy environment
-      shell: 'r10k deploy environment -p'
-
-
+    - name: sync with master.puppet
+      become: true
+      shell:
+        "/opt/puppetlabs/puppet/bin/puppet agent -t"  

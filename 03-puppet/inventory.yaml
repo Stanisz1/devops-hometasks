@@ -1,5 +1,5 @@
 [master]
-localhost ansible_connection=local
+ansible_host=192.168.33.10
 
 [slave]
 slave1.puppet ansible_host=192.168.33.11 
@@ -13,4 +13,3 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ansible_connection=ssh
 ansible_user=vagrant
 ansible_password=vagrant
-dnssuf=.local
