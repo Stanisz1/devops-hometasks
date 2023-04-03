@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
       ansible.inventory_path = "inventory.yaml"
       ansible.become = true
 
-      master.vm.provision :shell, inline: <<-SHELL
+    master.vm.provision :shell, inline: <<-SHELL
       sed -i "s/^PasswordAuthentication no\$/PasswordAuthentication yes/g" /etc/ssh/sshd_config
       service sshd restart
     SHELL
