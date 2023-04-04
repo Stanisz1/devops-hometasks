@@ -5,7 +5,7 @@
   hosts: all
   become: true
   tasks:
-    - name: key ADD
+    - name: GPG key add
       rpm_key:
         key: https://yum.puppet.com/RPM-GPG-KEY-puppet-20250406
         state: present
@@ -35,6 +35,7 @@
        name:
         - puppetserver
         - git
+        - sshpass
        state: present
 
     - name: Add path to .bashrc
@@ -55,13 +56,12 @@
         regexp: 'JAVA_ARGS="-Xms2g -Xmx2g'
         replace: 'JAVA_ARGS="-Xms256m -Xmx256m'
 
-    - name: creating a file autosign.conf
-      copy:
-        dest: /etc/puppetlabs/puppet/autosign.conf
-        content: |
-          slave1.puppet
-          slave2.puppet
-          mineserver.puppet
+    - name: add host my conf
+      become: yes
+      get_url:
+          url: https://raw.githubusercontent.com/Stanisz1/devops-hometasks/master/03-puppet/autosign.conf 
+          dest: /etc/puppetlabs/puppet/autosign.conf 
+          mode: '0644'
  
     - name: Create a directory r10k
       file:
@@ -112,7 +112,7 @@
         state: started
         enabled: true
 
-    - name: on r10k environment
+    - name: Deploy r10k environment
       shell: /opt/puppetlabs/puppet/bin/r10k deploy environment -p
 
     - name: Running Puppet agent
@@ -136,9 +136,7 @@
     - name: ADD hosts
       lineinfile:
         path: /etc/hosts
-        line: "{{item}}"
-      with_items:
-         - '192.168.33.10 master.puppet puppet'
+        line: '192.168.33.10 master.puppet puppet'
 
     - name: Make connect to puppet-server
       lineinfile:
@@ -147,12 +145,11 @@
       with_items:
          - '[agent]'
          - server = master.puppet
-         - runinterval = 1m
+         - runinterval = 2m
 
     - name: Enable Puppetagent
       service:
         name: puppet
         enabled: yes
         state: started
-
 
