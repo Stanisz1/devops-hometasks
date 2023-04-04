@@ -24,7 +24,7 @@
 # OTHER>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 - name : config
-  hosts: slave, mineserver
+  hosts: slave1.puppet, slave2.puppet, mineserver.puppet
   become: true
   tasks:
 
@@ -45,7 +45,7 @@
       with_items:
          - '[agent]'
          - server = master.puppet
-         - runinterval = 1m
+         - runinterval = 2m
 
     - name: Enable Puppetagent
       service:
@@ -57,7 +57,7 @@
 # MASTER >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 - name: Configure master
-  hosts: master
+  hosts: master.puppet 
   become: yes
   tasks:
 
