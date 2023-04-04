@@ -8,25 +8,28 @@ Vagrant.configure("2") do |config|
     vb.memory = "2048"
   end
 
-  config.vm.provision :shell, inline: <<-SHELL
-    sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-    sudo systemctl restart sshd.service
-    SHELL
-
   config.vm.define "slave1.puppet" do |slave|
     slave.vm.hostname = "slave1.puppet"
     slave.vm.network "private_network", ip: "192.168.33.11"
+    master.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yaml"
+      ansible.become = true
   end
 
   config.vm.define "slave2.puppet" do |slave|
     slave.vm.hostname = "slave2.puppet"
-    slave.vm.network "private_network", ip: "192.168.33.12"  
+    slave.vm.network "private_network", ip: "192.168.33.12" 
+    master.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yaml"
+      ansible.become = true 
   end
 
   config.vm.define "mineserver.puppet" do |mineserver|
     mineserver.vm.hostname = "mineserver.puppet"
     mineserver.vm.network "private_network", ip: "192.168.33.13"
-    
+    master.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yaml"
+      ansible.become = true
   end
   
   config.vm.define "master.puppet" do |master|
