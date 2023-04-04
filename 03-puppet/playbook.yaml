@@ -112,8 +112,8 @@
         state: started
         enabled: true
 
-    - name: Deploy r10k environment
-      cron
+    - name: on r10k environment
+      shell: /opt/puppetlabs/puppet/bin/r10k deploy environment -p
 
     - name: Running Puppet agent
       systemd:
