@@ -2,6 +2,7 @@
 master.puppet ansible_host=127.0.0.1 ansible_connection=local
 
 slave1.puppet ansible_host=192.168.33.11 
+
 slave2.puppet ansible_host=192.168.33.12 
 
 mineserver.puppet ansible_host=192.168.33.13 
