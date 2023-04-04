@@ -21,38 +21,6 @@
         state: stopped
         enabled: False
 
-# OTHER>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-- name : config
-  hosts: slave1.puppet, slave2.puppet, mineserver.puppet
-  become: true
-  tasks:
-
-    - name: install puppetagent
-      dnf:
-       name: puppet-agent
-       state: latest
-
-    - name: ADD hosts
-      lineinfile:
-        path: /etc/hosts
-        line: '192.168.33.10 master.puppet puppet'
-
-    - name: Make connect to puppet-server
-      lineinfile:
-        path: /etc/puppetlabs/puppet/puppet.conf
-        line: "{{item}}"
-      with_items:
-         - '[agent]'
-         - server = master.puppet
-         - runinterval = 2m
-
-    - name: Enable Puppetagent
-      service:
-        name: puppet
-        enabled: yes
-        state: started
-
 
 # MASTER >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -151,4 +119,38 @@
       systemd:
         state: started
         enabled: yes
-        name: puppet        
+        name: puppet                
+
+# OTHER>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+- name : config
+  hosts: slave1.puppet, slave2.puppet, mineserver.puppet
+  become: true
+  tasks:
+
+    - name: install puppetagent
+      dnf:
+       name: puppet-agent
+       state: latest
+
+    - name: ADD hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.33.10 master.puppet puppet'
+
+    - name: Make connect to puppet-server
+      lineinfile:
+        path: /etc/puppetlabs/puppet/puppet.conf
+        line: "{{item}}"
+      with_items:
+         - '[agent]'
+         - server = master.puppet
+         - runinterval = 2m
+
+    - name: Enable Puppetagent
+      service:
+        name: puppet
+        enabled: yes
+        state: started
+
+
