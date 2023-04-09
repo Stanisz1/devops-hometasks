@@ -1,0 +1,41 @@
+---
+- include_tasks: "{{ jenkins_install_via }}/stop.yaml"
+
+- name: Set Jenkins Java command line options
+  lineinfile:
+    dest: /lib/systemd/system/jenkins.service
+    regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"'
+    line: 'Environment="JAVA_OPTS={{ jenkins_java_opts }}"'
+
+- name: Ensure correct ownership of JENKINS_HOME directory
+  file:
+    path: "{{ jenkins_home }}"
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    mode: 0755
+    state: directory
+
+- name: Initialize Jenkins secrets dir fact
+  set_fact:
+    jenkins_secrets: "{{ jenkins_home }}/secrets"
+
+- name: Copy secrets
+  copy:
+    src: "{{ jenkins_source_secrets }}"
+    dest: "{{ jenkins_secrets }}"
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+  when: jenkins_include_secrets
+
+- name: Ensure correct ownership of secrets directory
+  file:
+    path: "{{ jenkins_secrets }}"
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    mode: 0700
+    state: directory
+
+- name: Copy users config file
+  copy:
+    src: "{{ jenkins_config_via }}"
+    dest: "{{ jenkins_home }}"

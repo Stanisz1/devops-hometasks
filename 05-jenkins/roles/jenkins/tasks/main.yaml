@@ -1,0 +1,10 @@
+---     
+- include: "{{ jenkins_install_via }}/install.yaml"
+
+- include: "configure-jenkins.yaml"
+
+- include: "configure-plugins.yaml"
+
+- include: "configure-jobs.yaml"
+
+- include: "create-credentials.yaml"
