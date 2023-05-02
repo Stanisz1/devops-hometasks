@@ -1,0 +1,30 @@
+---
+version: '3'
+services:
+  
+  jenkins:
+    container_name: jenkins
+    build:
+      context: .
+      dockerfile: Dockerfile.Jenkins
+    depends_on:
+    - nexus
+    networks:
+    - close
+    ports: 
+    - "80:8080"
+
+  nexus:
+    container_name: nexus
+    build:
+      context: .
+      dockerfile: Dockerfile.Nexus
+    networks:
+    - close
+    ports: 
+    - "81:8081"
+    
+  
+
+networks:
+  close:

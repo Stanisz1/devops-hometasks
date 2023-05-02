@@ -1,56 +1,53 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
 Vagrant.configure("2") do |config|
-  config.vm.box = "generic/debian11"
-  config.vm.synced_folder  ".", "/vagrant", disabled: false
-  config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1024"
-    vb.cpus   = "2"
-  end
 
-  config.vm.define "jenkins", primary: true do |jenkins|
-    jenkins.vm.network "private_network", ip: "192.168.33.83"
-    jenkins.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "jenkins.yaml"
-      ansible.inventory_path = "inventory"
+    config.vm.box = "generic/debian11"
+  
+    config.vm.define "jenkins" do |host|
+        host.vm.network "private_network", ip: "192.168.33.100"
+        host.vm.synced_folder  ".", "/vagrant", disabled: false
+        host.vm.provider "virtualbox" do |vb|
+            vb.memory = 1700
+            vb.cpus = 2
+        end
+        host.vm.provision :ansible_local do |ans|
+            ans.playbook = "jenkins.yml"
+        end
     end
-  end
+    
+    config.vm.define "nexus" do |host|
+        host.vm.network "private_network", ip: "192.168.33.90"
+        host.vm.synced_folder  ".", "/vagrant", disabled: false
+        host.vm.provider "virtualbox" do |vb|
+            vb.memory = 4096
+            vb.cpus = 2
+        end
+        host.vm.provision :ansible_local do |ansible|
+            ansible.playbook = "nexus.yml"
+            ansible.galaxy_role_file = "requirements.yaml"
+            ansible.galaxy_roles_path = '/etc/ansible/roles'
+            ansible.galaxy_command = 'sudo ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force'
+        end
+   end
 
-  config.vm.define "nexus" do |nexus|
-    nexus.vm.network "private_network", ip: "192.168.33.90"
-    nexus.vm.hostname = "nexus"
-    nexus.vm.network "forwarded_port", guest: 8081, host: 8091
-    nexus.vm.synced_folder  ".", "/vagrant", disabled: false
-    nexus.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "jenkins.yaml"
+    config.vm.define "staging" do |host|
+        host.vm.network "private_network", ip: "192.168.33.80"
+        host.vm.synced_folder  ".", "/vagrant", disabled: false
+        host.vm.provider("virtualbox"){ |vb| vb.memory = 256 }
+        host.vm.provision :ansible_local do |ans|
+            ans.playbook = "staging-prod.yml"
+        end
     end
-  end
+    
+    config.vm.define "production" do |host|
+        host.vm.network "private_network", ip: "192.168.33.85"
+        host.vm.synced_folder  ".", "/vagrant", disabled: false
+        host.vm.provider("virtualbox"){ |vb| vb.memory = 256 }
+        host.vm.provision :ansible_local do |ans|
+            ans.playbook = "staging-prod.yml"
+        end
+    end
 
-  config.vm.define "staging" do |staging|
-    staging.vm.network "private_network", ip: "192.168.33.80"
-    staging.vm.provider("virtualbox"){ |vb| vb.memory = 256 }
-    staging.vm.hostname = "staging"
-    config.vm.provision "shell", inline: <<-SHELL
-        sed -i "s/^PasswordAuthentication no\$/PasswordAuthentication yes/g" /etc/ssh/sshd_config
-        service sshd restart
-        echo -e "vagrant\nvagrant" | passwd vagrant
-      SHELL
-
-    staging.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "jenkins.yaml"
-    end  
-  end
-
-  config.vm.define "production" do |production|
-    production.vm.network "private_network", ip: "192.168.33.85"
-    production.vm.provider("virtualbox"){ |vb| vb.memory = 256 }
-    production.vm.hostname = "production"
-    config.vm.provision "shell", inline: <<-SHELL
-        sed -i "s/^PasswordAuthentication no\$/PasswordAuthentication yes/g" /etc/ssh/sshd_config
-        service sshd restart
-        echo -e "vagrant\nvagrant" | passwd vagrant
-      SHELL
-
-    production.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "jenkins.yaml"
-    end  
-  end
 end

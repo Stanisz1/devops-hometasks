@@ -1,4 +1,4 @@
-FROM debian:11
+FROM debian:11.6
 RUN apt-get update && apt-get install apache2 -y \
  && apt-get install apache2-utils -y && apt-get install php7.4 -y
 RUN rm /var/www/html/index.html

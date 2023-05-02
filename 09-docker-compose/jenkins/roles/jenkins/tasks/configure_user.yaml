@@ -1,0 +1,46 @@
+---
+- name: create directory
+  become: true
+  file:
+    path=/var/lib/jenkins/init.groovy.d
+    state=directory
+  
+- name: copy file in groovy.d
+  become: true
+  copy:
+    src: 02-admin-user.groovy
+    dest: /var/lib/jenkins/init.groovy.d/02-admin-user.groovy
+
+- name: Jenkins stop
+  service:
+    name: jenkins
+    state: stopped 
+
+#- name: copy file in groovy.d
+#  become: true
+#  copy:
+#   src: 03-csrf.groovy
+#    dest: /var/lib/jenkins/init.groovy.d/03-csrf.groovy
+
+- name: change ownership of a directory
+  become: true
+  ansible.builtin.file:
+    path: /var/lib/jenkins/init.groovy.d/
+    state: directory
+    recurse: yes
+    owner: jenkins
+    group: jenkins
+
+- name: edit system.service jenkins
+  become: true
+  ansible.builtin.replace:
+    path: /lib/systemd/system/jenkins.service
+    regexp: 'Environment="JAVA_OPTS=-Djava.awt.headless=true"'
+    replace: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true"'      
+
+#- name: restart Jenkins
+#  become: true
+#  systemd:
+#    name: jenkins.service
+#    state: restarted
+#    daemon_reload: true

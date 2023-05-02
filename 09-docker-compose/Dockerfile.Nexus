@@ -1,0 +1,6 @@
+FROM debian:bullseye
+RUN apt update && apt install -y ansible
+WORKDIR /root/
+COPY ./nexus/ /root/
+RUN ansible-playbook -i inventory playbook.yaml
+CMD /opt/nexus-latest/bin/nexus run

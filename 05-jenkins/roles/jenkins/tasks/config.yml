@@ -1,0 +1,101 @@
+- name: Wait for Jenkins to start up before proceeding.
+  uri:
+    url: "http://localhost:8080/cli/"
+    method: GET
+    return_content: "yes"
+    timeout: 5
+    body_format: raw
+    follow_redirects: "no"
+    status_code: 200,403
+  register: result
+  until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+  retries: 5
+  delay: 10
+  changed_when: false
+  check_mode: false
+
+- name: Get Jenkins CRUMB
+  uri:
+    method: GET
+    url: 'http://localhost:8080/crumbIssuer/api/json'
+    user: "{{ jenkins_admin_user }}"
+    password: "{{ jenkins_admin_password }}"
+    force_basic_auth: yes
+    return_content: true
+  register: crumb
+
+- debug:
+    var: crumb
+
+- name: Get Jenkins API token
+  uri:
+    method: POST
+    url: 'http://localhost:8080/user/admin/descriptorByName/jenkins.security.ApiTokenProperty/generateNewToken'
+    user: "{{ jenkins_admin_user }}"
+    password: "{{ jenkins_admin_password }}"
+    follow_redirects: all
+    headers:
+      Jenkins-Crumb: '{{ crumb.json.crumb }}'
+      Cookie: "{{ crumb.cookies_string }}"
+    force_basic_auth: yes
+    return_content: true
+    body: 'newTokenName={{ crumb.json.crumb[:7] }}'
+  register: token
+
+- name: Add configuration as code
+  template:
+    src: jenkins.yaml.j2
+    dest: /var/lib/jenkins/jenkins.yaml
+    owner: jenkins
+    group: jenkins
+
+- name: Install plugins
+  jenkins_plugin:
+    name: "{{ item }}"
+    state: present
+    timeout: 300
+    with_dependencies: yes
+    url_username: "{{ jenkins_admin_user }}"
+    url_password: "{{ token.json.data.tokenValue }}"
+  loop:
+  - credentials-binding
+  - credentials
+  - plain-credentials
+  - git-client
+  - ssh-credentials
+  - workflow-scm-step
+  - pipeline
+  - ssh
+  - sshd
+  - ssh-slaves
+  - timestamper
+  - golang
+  - locale
+  - ws-cleanup
+  - git
+  - nexus-artifact-uploader
+  - configuration-as-code
+  register: plugin_result
+  until: plugin_result is success
+  retries: 5
+  delay: 10  
+  
+- name: Add configuration for SSH plugin
+  template:
+    src: org.jvnet.hudson.plugins.SSHBuildWrapper.xml.j2
+    dest: /var/lib/jenkins/org.jvnet.hudson.plugins.SSHBuildWrapper.xml
+    owner: jenkins
+    group: jenkins
+
+- name: Create job
+  jenkins_job:
+    config: "{{ lookup('template', 'job-config-2.xml.j2') }}"
+    name: GoBuild
+    user: "{{ jenkins_admin_user }}"
+    password: "{{ token.json.data.tokenValue }}"
+
+- name: Restart Jenkins to run configuration as code
+  systemd:
+    name: jenkins
+    state: restarted
+    daemon_reload: yes

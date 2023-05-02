@@ -1,0 +1,6 @@
+---
+- include_tasks: install.yaml
+- include_tasks: configure_user.yaml
+- include_tasks: plugins.yaml
+- include_tasks: jobs.yaml
+- include_tasks: credentials.yaml

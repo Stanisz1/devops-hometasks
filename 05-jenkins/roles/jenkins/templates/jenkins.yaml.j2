@@ -1,0 +1,37 @@
+unclassified:
+  locale:
+    systemLocale: en
+    ignoreAcceptLanguage: true
+
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          scope:    GLOBAL
+          id:       {{ staging_creds_id }}
+          username: {{ staging_creds_user }}
+          password: {{ staging_creds_password }}
+          description: {{ staging_creds_description }}
+      - usernamePassword:
+          scope:    GLOBAL
+          id:       {{ prod_creds_id }}
+          username: {{ prod_creds_user }}
+          password: {{ prod_creds_password }}
+          description: {{ prod_creds_description }}
+      - usernamePassword:
+          scope:    GLOBAL
+          id:       {{ nexus_creds_id }}
+          username: {{ nexus_creds_user }}
+          password: {{ nexus_creds_password }}
+          description: {{ nexus_creds_desc }}
+
+tool:
+  go:
+    installations:
+    - name: "Go 1.16"
+      properties:
+      - installSource:
+          installers:
+          - golangInstaller:
+              id: "1.16"

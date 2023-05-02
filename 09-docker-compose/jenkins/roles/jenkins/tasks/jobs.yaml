@@ -1,0 +1,22 @@
+---
+
+- name: Create Gobuild job directory
+  ansible.builtin.file:
+    path: /var/lib/jenkins/jobs/gobuild
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+
+- name: Copy Gobuild job config file
+  ansible.builtin.copy:
+    src: config.xml
+    dest: /var/lib/jenkins/jobs/gobuild/config.xml
+    owner: jenkins
+    group: jenkins
+    mode: 0644
+
+#- name: Jenkins reload
+#  ansible.builtin.systemd:
+#    name: jenkins.service
+#   state: restarted

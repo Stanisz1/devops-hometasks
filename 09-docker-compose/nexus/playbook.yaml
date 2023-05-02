@@ -1,0 +1,56 @@
+---
+
+- name: configure nexus.vm
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+  - name: Install software dependenses
+    apt:
+      pkg: 
+      - gnupg2 
+      - software-properties-common
+      - rsync
+      state: present
+      update_cache: yes
+
+  - name: Add key
+    apt_key:
+      url: https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+
+
+  - name: Add repository
+    apt_repository:
+      repo: deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ buster main
+      state: present
+      update_cache: true
+
+  - name: Install Java
+    apt:
+      name: adoptopenjdk-8-hotspot
+      state: present
+
+  - name: Install and config Nexus
+    include_role:
+      name: nexus3-oss
+    vars:
+      nexus_timezone: 'Europa/Minsk'
+      #nexus_min_heap_size: "1024M"
+      nexus_admin_password: 'admin'
+      nexus_delete_default_repos: True
+      nexus_anonymous_access: false
+      nexus_config_raw: true
+      nexus_repos_raw_hosted:
+      - name: word-cloud-build
+        version_policy: release
+        write_policy: allow_once
+        blob_store: default
+      nexus_local_users:
+      - username: uploader
+        first_name: Nexus
+        last_name: Uploader
+        email: jenkins@gmail.com
+        password: "uploader"
+        roles:
+          - nx-admin

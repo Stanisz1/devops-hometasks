@@ -1,0 +1,34 @@
+---
+- name: Ensure dependencies are installed.
+  become: true
+  ansible.builtin.apt:
+    name:
+      - curl
+      - apt-transport-https
+      - gnupg
+      - build-essential
+      - default-jre
+      - git
+      - jq
+    state: present
+    update_cache: yes
+
+- name: add repository
+  become: true
+  apt_key:
+    url: "https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key"
+    state: present
+
+- name: add repository
+  become: true
+  apt_repository:
+    repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+    update_cache: true
+
+- name: Update the repository cache and install jenkins
+  become: true
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: yes

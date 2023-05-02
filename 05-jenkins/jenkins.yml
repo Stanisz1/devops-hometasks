@@ -1,0 +1,21 @@
+---
+- name: Install Jenkins
+  hosts: all
+  become: yes
+
+  # pre_tasks:
+  # - name: Allow password authentication
+  #   replace:
+  #     path: /etc/ssh/sshd_config
+  #     regexp: '^(.*)PasswordAuthentication(.*)$'
+  #     replace: 'PasswordAuthentication yes'
+  #   notify: Restart sshd
+  
+  # handlers:
+  # - name: Restart sshd
+  #   service:
+  #     name: sshd
+  #     state: restarted
+  
+  roles:
+  - jenkins

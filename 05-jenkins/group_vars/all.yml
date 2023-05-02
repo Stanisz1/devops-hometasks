@@ -1,0 +1,51 @@
+nexus_ip: 192.168.33.90
+staging_ip: 192.168.33.80
+prod_ip: 192.168.33.85
+
+# Jenkins
+jenkins_admin_user: admin
+jenkins_admin_password: admin
+# jenkins_token: "{{ lookup('env','JENKINS_TOKEN') }}"
+
+staging_creds_id: staging_creds
+staging_creds_user: vagrant
+staging_creds_password: vagrant
+staging_creds_description: staging_creds
+  
+prod_creds_id: prod_creds
+prod_creds_user: vagrant
+prod_creds_password: vagrant
+prod_creds_description: prod_creds  
+
+# Nexus
+nexus_creds_id: nexus-creds
+nexus_creds_user: uploader
+nexus_creds_password: uploader
+nexus_creds_desc: nexus-creds
+
+nexus_version: ''
+nexus_admin_password: admin
+nexus_annonymous_access: false
+nexus_config_maven: false
+nexus_delete_default_repos: true
+nexus_config_raw: true
+nexus_repos_raw_hosted:
+- name: word-cloud-build
+  version_policy: release
+  write_policy: allow
+nexus_roles:
+- id: nx-uploader
+  name: nx-uploader
+  description: all uploaders
+  privileges:
+  - nx-repository-view-raw-word-cloud-build-*
+  roles: []
+nexus_local_users:
+- username: uploader
+  state: present
+  first_name: uploader
+  last_name: loader
+  email: support@company.com
+  password: "uploader"
+  roles:
+  - nx-uploader
