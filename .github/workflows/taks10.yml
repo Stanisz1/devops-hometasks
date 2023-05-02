@@ -3,6 +3,8 @@ name: 10-github-action
 on:
   push:
   workflow_dispatch:
+env:
+  OWNER: '${{ github.repository_owner }}' 
   
 jobs:
  _10-github-action:
@@ -16,6 +18,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.ACTION_TOKEN }}
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}       
       - name: build WCG
         run: |
           repository_owner=${{ github.repository_owner }}
