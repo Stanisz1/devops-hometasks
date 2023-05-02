@@ -3,8 +3,7 @@ name: task 10
 on: 
   push:
   workflow_dispatch:
-env:
-  OWNER: '${{ github.repository_owner }}' 
+
 jobs:
   build:
     runs-on: ubuntu-latest
