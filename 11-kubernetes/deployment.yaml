@@ -12,9 +12,10 @@ spec:
     metadata:
       labels:
         app: wcg
-
+    
+    spec:
       containers:
         - name: wcg
-          image: ghcr.io/stanisz1/wcg
+          image: ghcr.io/stanisz1/wcg:ace07b74b63cab357e1623f20a19ccf99b6ad187
           imagePullPolicy: Always
           resources: {}
