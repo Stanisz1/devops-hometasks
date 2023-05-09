@@ -6,7 +6,7 @@ metadata:
     app: wcg
 spec:
   rules:
-  - host: wcg.com
+  - host: wcg
     http:
       paths:
       - path: "/"
