@@ -1,12 +1,18 @@
 terraform {
   required_providers {
-    github = {
-      source  = "integrations/github"
-      version = "5.25.0"
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.20.0"
     }
+  }
+  backend "kubernetes" {
+    secret_suffix = "state"
+    config_path   = "~/.kube/config"
+    namespace     = "kube-system"
   }
 }
 
-provider "github" {
-  token = var.tf_token
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+  config_context = "minikube"
 }
