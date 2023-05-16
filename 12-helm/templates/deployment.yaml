@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "wcg.fullname" . }}
+  name:  {{ .Chart.Name }}
   labels:
     {{- include "wcg.labels" . | nindent 4 }}
 spec:
@@ -20,8 +20,8 @@ spec:
     spec:
 
       containers:
-        - name: {{ .Chart.Name }}
-          image: ghcr.io/stanisz1/wcg:d0e68ba67d59152b5c5b2b5f9f5d1d56140fa573
+        - name: {{ .Values.container.name }}
+          image:  {{ .Values.image.repository }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
