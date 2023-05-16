@@ -5,9 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: 12-helm
-  pullPolicy: Always
-  tag: "v1"
+  repository: ghcr.io/stanisz1/wcg:d0e68ba67d59152b5c5b2b5f9f5d1d56140fa573
+  name: github-pull-secret
+  imagePullPolicy: Always
+  resources: {}
 
 podAnnotations: {}
 
