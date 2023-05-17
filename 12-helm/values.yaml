@@ -11,9 +11,10 @@ container:
   name: wcg
 
 image:
-  repository: ghcr.io/stanisz1/wcg:d0e68ba67d59152b5c5b2b5f9f5d1d56140fa573
+  repository: ghcr.io/stanisz1/wcg
   name: github-pull-secret
   imagePullPolicy: Always
+  tag: ""
   resources: {}
 
 ingress:
