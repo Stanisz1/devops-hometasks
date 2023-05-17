@@ -1,39 +1,22 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  {{ .Chart.Name }}
-  labels:
-    {{- include "wcg.labels" . | nindent 4 }}
+  name: {{ .Chart.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "wcg.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.container.label }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "wcg.selectorLabels" . | nindent 8 }}
+        app: {{ .Values.container.label }}
     spec:
-
       containers:
         - name: {{ .Values.container.name }}
-          image:  {{ .Values.image.repository }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+            limits:
+              memory: {{ .Values.container.memoryLimit }}
+              cpu: "{{ .Values.container.cpuLimit }}"
