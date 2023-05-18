@@ -1,0 +1,20 @@
+service:
+  port: 8888
+  name: wcg-svc
+  protocol: TCP
+
+container:
+  port: 8888
+  label: wcg
+  name: wcg
+  memoryLimit: 512Mi
+  cpuLimit: 1
+
+image:
+  repository: ghcr.io/stanisz1/wcg
+  tag: latest
+
+ingress:
+  host: wcg.local
+  path: /
+  pathType: Prefix
