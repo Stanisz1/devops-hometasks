@@ -13,8 +13,9 @@ container:
 image:
   repository: ghcr.io/stanisz1/wcg
   tag: latest
+  imagePullPolicy: Always
 
 ingress:
-  host: wcg.local
+  host: wcg.local.com
   path: /
   pathType: Prefix
