@@ -16,6 +16,6 @@ image:
   imagePullPolicy: Always
 
 ingress:
-  host: wcg.local.com
+  host: localhost:8888
   path: /
   pathType: Prefix
