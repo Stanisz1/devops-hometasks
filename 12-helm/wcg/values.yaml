@@ -16,6 +16,6 @@ image:
   imagePullPolicy: Always
 
 ingress:
-  host: localhost
+  host: https://localhost:8888/
   path: /
   pathType: Prefix
