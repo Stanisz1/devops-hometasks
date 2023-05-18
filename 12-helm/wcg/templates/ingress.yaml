@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: {{ .Chart.Name }}-ingress
   annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
