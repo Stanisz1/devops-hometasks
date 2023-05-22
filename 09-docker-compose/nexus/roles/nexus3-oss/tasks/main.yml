@@ -93,13 +93,13 @@
     - name: Apply defaults to privileges
       # @todo: fix with easier syntax once the flip filter is released
       # See more comments on this issue in process_repos_list.yml
-      ansible.builtin.set_fact:
-        nexus_privileges: >-
-          {%- set result = [] -%}
-          {%- for privilege in nexus_privileges -%}
-            {{ result.append(_nexus_privilege_defaults | combine(privilege)) }}
-          {%- endfor -%}
-          {{ result | to_json | from_json }}
+      # ansible.builtin.set_fact:
+      #   nexus_privileges: >-
+      #     {%- set result = [] -%}
+      #     {%- for privilege in nexus_privileges -%}
+      #       {{ result.append(_nexus_privilege_defaults | combine(privilege)) }}
+      #     {%- endfor -%}
+      #     {{ result | to_json | from_json }}
 
     - name: Create/Check blobstores
       when: nexus_restore_point is undefined
