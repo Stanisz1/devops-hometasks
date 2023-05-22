@@ -7,6 +7,6 @@ entries:
       digest: 224275b3199824390ef9d00eb7ab52104c1b88a9dc50814a584605347660023e
       name: wcg
       urls:
-        - https://stanisz1.github.io/devops-hometasks/final/wcg-1.1.tgz
-      version: "1.1"
+        - https://stanisz1.github.io/devops-hometasks/final/wcg-0.1.2.tgz
+      version: "0.1.2"
 generated: "2023-05-22T18:05:30.285562+03:00"
