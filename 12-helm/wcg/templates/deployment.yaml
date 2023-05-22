@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.container.name }}
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag | defualt .Chart.AppVersion}}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           resources:
             limits:
               memory: {{ .Values.container.memoryLimit }}
