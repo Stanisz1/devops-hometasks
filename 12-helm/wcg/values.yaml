@@ -12,7 +12,7 @@ container:
 
 image:
   repository: ghcr.io/stanisz1/wcg
-  tag: latest
+  tag: ""
   imagePullPolicy: Always
 
 ingress:

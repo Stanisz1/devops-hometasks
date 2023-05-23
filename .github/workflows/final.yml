@@ -1,0 +1,61 @@
+# name: 10-github-action
+
+# on:
+#   push:
+#     branches:
+#       - master
+#     tags:
+#       - '*'
+#   workflow_dispatch:
+# env:
+#   OWNER: "${{ github.repository_owner }}"
+
+# jobs:
+#   _10-github-action:
+#     runs-on: ubuntu-20.04
+
+#     steps:
+#       - uses: actions/checkout@v3.3.0
+#       - name: Login to GitHub Container Registry
+#         uses: docker/login-action@v2.1.0
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.ACTION_TOKEN }}
+#       - name: set lower case owner name
+#         run: |
+#           echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+#       - name: build WCG
+#         run: |
+#           repository_owner=${{ github.repository_owner }}
+#           repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
+#           docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+#           docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+#           docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
+          
+#       - name: Add tag and push to branch
+#         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+#         run: |
+#           version=$(echo "${{ github.ref }}" | sed -e "s/refs\/heads\/master/v/" -e "s/\./_/g")
+#           git tag $version
+#           git push origin $version
+      
+#       - name: Helm lint
+#         run: helm lint ./12-helm/wcg
+
+#       - name: Package Helm chart
+#         run: |
+#           cd ./12-helm
+#           version=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///" -e "s/\./_/g")
+#           helm package wcg -u --version $version
+          
+#       - name: Update repository index
+#         run: |
+#           cd ./12-helm
+#           helm repo index . --merge index.yaml --url https://$repository_owner_lowercase.github.io/$GITHUB_REPOSITORY/
+          
+#       - name: Update Helm Chart values
+#         run: |
+#           cd ./12-helm
+#           version=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///" -e "s/\./_/g")
+#           sed -i "s/tag:.*/tag: \"$version\"/" wcg/values.yaml

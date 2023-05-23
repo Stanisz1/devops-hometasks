@@ -1,7 +1,7 @@
 resource "kubernetes_ingress_v1" "wcgingress" {
-  depends_on = [
-    kubernetes_service_v1.wcgservice
-  ]
+  # depends_on = [
+  #   kubernetes_service_v1.wcgservice
+  # ]
   metadata {
     name = var.ingress.name
   }
