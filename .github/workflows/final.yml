@@ -44,17 +44,17 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          cd ./12-helm
+          
           version=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///" -e "s/\./_/g")
           helm package wcg -u --version $version
           
       - name: Update repository index
         run: |
-          cd ./12-helm
+          
           helm repo index . --merge index.yaml --url https://$repository_owner_lowercase.github.io/$GITHUB_REPOSITORY/
           
       - name: Update Helm Chart values
         run: |
-          cd ./12-helm
+          
           version=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\///" -e "s/\./_/g")
           sed -i "s/tag:.*/tag: \"$version\"/" wcg/values.yaml
