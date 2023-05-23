@@ -11,6 +11,26 @@ env:
   OWNER: ${{ github.repository_owner }}
 
 jobs:
+
+  bump-version:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.sha }} # required for better experience using pre-releases
+        fetch-depth: '0'
+
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@1.66.0 # Don't use @master or @v1 unless you're happy to test the latest version
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }} # if you don't want to set write permissions use a PAT token
+        WITH_V: true
+        PRERELEASE: true
+
+
   build-docker:
     runs-on: ubuntu-20.04
 
@@ -29,23 +49,11 @@ jobs:
         run: |
           repository_owner=${{ github.repository_owner }}
           repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.new_tag }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.new_tag }}
           docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
 
-  bump-version:
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: '0'
   
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.64.0 # Don't use @master or @v1 unless you're happy to test the latest version
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }} # if you don't want to set write permissions use a PAT token
-          WITH_V: false
 
   chart-testing:
     needs: [build-docker, bump-version]
