@@ -1,4 +1,4 @@
-name: 10-github-action
+name: final
 on:
   push:
     branches:
@@ -10,7 +10,7 @@ env:
   OWNER: "${{ github.repository_owner }}"
 
 jobs:
-  _10-github-action:
+  final:
     runs-on: ubuntu-20.04
 
     steps:
