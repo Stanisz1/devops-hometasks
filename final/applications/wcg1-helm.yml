@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: wcg
+  name: wcg-final
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -12,7 +12,7 @@ spec:
   source:
     path: ""
     repoURL: "https://stanisz1.github.io/devops-hometasks/"
-    targetRevision: "1.1"
+    targetRevision: "0.*"
     chart: wcg
   sources: []
   project: development
