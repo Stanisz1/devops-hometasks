@@ -1,4 +1,4 @@
-name: final-11
+name: final-1
 on:
   push:
     branches:
@@ -82,7 +82,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
 
-  chart-releaser:
+  chart-testing:
     needs: [build-docker, bump-version]
     runs-on: ubuntu-20.04
 
@@ -95,7 +95,7 @@ jobs:
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"  
-
+            
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         env:
