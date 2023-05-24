@@ -29,7 +29,7 @@ jobs:
     - uses: rickstaa/action-create-tag@v1
       id: "tag_create"
       with:
-        tag: "latest"
+        tag: "*"
         tag_exists_error: false
         message: "Latest release"
 
@@ -52,8 +52,8 @@ jobs:
       run: |
         repository_owner=${{ github.repository_owner }}
         repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.tag }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.tag }}
         docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
         
 
