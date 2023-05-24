@@ -52,8 +52,8 @@ jobs:
       run: |
         repository_owner=${{ github.repository_owner }}
         repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.tag }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.tag }}
+        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
         docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
         
 
@@ -133,7 +133,7 @@ jobs:
 
       - name: Add dependency chart repos
         run: |
-          helm package 12-helm/wcg --app-version ${{ steps.tag_create.outputs.tag_exists }} --version ${{ steps.tag_create.outputs.tag_exists }} -d  final
+          helm package 12-helm/wcg --app-version ${{ github.tag }} --version ${{ github.tag }} -d  final
           helm repo index --url  https://stanisz1.github.io/devops-hometasks/ .
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
