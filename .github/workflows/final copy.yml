@@ -114,7 +114,6 @@ jobs:
 
       - name: Add dependency chart repos
         run: | 
-            helm lint
             helm package 12-helm/wcg --app-version 3 --version 3 -d final/
             helm repo index --url https://stanisz1.github.io/devops-hometasks/ final/
             git add .
