@@ -9,12 +9,4 @@ entries:
     urls:
     - https://stanisz1.github.io/devops-hometasks/final/wcg-0.21.0.tgz
     version: 0.21.0
-  - apiVersion: v2
-    appVersion: 0.20.0
-    created: "2023-05-24T22:14:09.794847609Z"
-    digest: c41038a52451e209117830af0a0e370c2c9b38f560e4676aa26a34bb2f88d69d
-    name: wcg
-    urls:
-    - https://stanisz1.github.io/devops-hometasks/final/wcg-0.20.0.tgz
-    version: 0.20.0
 generated: "2023-05-24T22:14:09.794413808Z"
