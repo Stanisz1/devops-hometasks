@@ -113,14 +113,17 @@ jobs:
       #     GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
 
       - name: Add dependency chart repos
-        run: |
-          helm package 12-helm/wcg --app-version ${{ github.tag }} --version ${{ github.tag }} -d  final
-          helm repo index --url  https://stanisz1.github.io/devops-hometasks/ .
+        uses: flydiverny/helm-package-action@master
+        with:
+          version: v0.1.0
+                      
+        # run: |
+        #   helm package 12-helm/wcg --app-version ${{ github.tag }} --version ${{ github.tag }} -d  final
+        #   helm repo index --url  https://stanisz1.github.io/devops-hometasks/ .
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: final
           config: index.yaml
-          charts_repo_url: xxxxxx
         env:
           CR_TOKEN: "${{ secrets.ACTION_TOKEN }}"
