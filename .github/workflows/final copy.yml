@@ -10,33 +10,32 @@ on:
 jobs:
   build-docker:
     runs-on: ubuntu-20.04
-    
     permissions:
       contents: write
-     steps:
-      - uses: actions/checkout@master
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_OWNER: ${{ github.repository_owner }}
+    steps:
+    - uses: actions/checkout@master
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO_OWNER: ${{ github.repository_owner }}
 
 
-      - uses: actions/checkout@v3.3.0
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.ACTION_TOKEN }}
-      
-      - name: build WCG
-        run: |
-          repository_owner=${{ github.repository_owner }}
-          repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
+    - uses: actions/checkout@v3.3.0
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2.1.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.ACTION_TOKEN }}
+    
+    - name: build WCG
+      run: |
+        repository_owner=${{ github.repository_owner }}
+        repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
+        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
         
 
   lint-test:
