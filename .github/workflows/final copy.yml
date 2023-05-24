@@ -122,5 +122,6 @@ jobs:
         with:
           charts_dir: final
           config: index.yaml
+          charts_repo_url: https://stanisz1.github.io/devops-hometasks/
         env:
           CR_TOKEN: "${{ secrets.ACTION_TOKEN }}"
