@@ -130,7 +130,7 @@ jobs:
         run: | 
             git config user.name "$GITHUB_ACTOR"
             helm package 12-helm/wcg --app-version ${{ needs.bump-version.outputs.tag }} --version ${{ needs.bump-version.outputs.tag }} -d final/
-            helm repo index --url https://stanisz1.github.io/devops-hometasks/ 
+            helm repo index --url https://stanisz1.github.io/devops-hometasks/ .
             git add .
             git commit -m "Update Helm repository with new package"
             git push origin master 
