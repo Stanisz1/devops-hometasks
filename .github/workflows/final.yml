@@ -1,62 +1,61 @@
-name: final-11
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - '*'
-  workflow_dispatch:
+# name: final-11
+# on:
+#   push:
+#     branches:
+#       - master
+#     tags:
+#       - '*'
+#   workflow_dispatch:
 
-env:
-  OWNER: ${{ github.repository_owner }}
+# env:
+#   OWNER: ${{ github.repository_owner }}
 
-jobs:
+# jobs:
 
-    build-docker:
-      runs-on: ubuntu-20.04
-      permissions:
-        contents: write
-      steps:
-      - uses: actions/checkout@master
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_OWNER: ${{ github.repository_owner }}
+#     build-docker:
+#       runs-on: ubuntu-20.04
+#       permissions:
+#         contents: write
+#       steps:
+#       - uses: actions/checkout@master
+#       - name: Bump version and push tag
+#         uses: anothrNick/github-tag-action@master
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           REPO_OWNER: ${{ github.repository_owner }}
 
 
-      - uses: actions/checkout@v3.3.0
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.ACTION_TOKEN }}
+#       - uses: actions/checkout@v3.3.0
+#       - name: Login to GitHub Container Registry
+#         uses: docker/login-action@v2.1.0
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.ACTION_TOKEN }}
       
-      - name: build WCG
-        run: |
-          repository_owner=${{ github.repository_owner }}
-          repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
+#       - name: build WCG
+#         run: |
+#           repository_owner=${{ github.repository_owner }}
+#           repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
+#           docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+#           docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+#           docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
     
-    helm:
-      needs: [build-docker]
-      runs-on: ubuntu-20.04
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            username: ${{ github.actor }}
-            password: ${{ secrets.ACTION_TOKEN }}
-        - name: Install Helm
-          run: |
-            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-        - name: Create Helm Package and Update Repository Index
-          run: |
-              helm package 12-helm/wcg --app-version 3 --version 3 -d final/
-              helm repo index --url https://stanisz1.github.io/devops-hometasks/ final/
-              git add .
-              git commit -m "Update Helm repository with new package"
-              git push origin master 
+#     helm:
+#       needs: [build-docker]
+#       runs-on: ubuntu-20.04
+#       steps:
+#         - name: Checkout
+#           uses: actions/checkout@v3
+#         - name: Install Helm
+#           run: |
+#             curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+#         - name: Create Helm Package and Update Repository Index
+#         - uses: ./.github/actions/hello-world-action
+#                run: |
+#                     helm lint
+#                     helm package 12-helm/wcg --app-version 3 --version 3 -d final/
+#                     helm repo index --url https://stanisz1.github.io/devops-hometasks/ final/
+#                     git add .
+#                     git commit -m "Update Helm repository with new package"
+#                     git push origin master 
