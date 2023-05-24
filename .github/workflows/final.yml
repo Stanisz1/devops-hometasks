@@ -20,8 +20,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO_OWNER: ${{ github.repository_owner }}
-    outputs:
-        DEPLOY_ENV: ${{ steps.env.outputs.DEPLOY_ENV }}
+    - name: Get new version
+      id: get_version
+      run: echo ::set-output name=new_version::$(cat VERSION)
+    - name: Print new version
+      run: echo "New version is ${{ steps.get_version.outputs.new_version }}"
 
   build-docker:
     needs: [bump-version]
@@ -39,9 +42,9 @@ jobs:
       run: |
         repository_owner=${{ github.repository_owner }}
         repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:${{ steps.get_version.outputs.new_version }} -f ./07-docker/Dockerfile.multi .
         docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ steps.get_version.outputs.new_version }}
         
 
   lint-test:
@@ -61,7 +64,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          check-latest: true
+          check-${{ steps.get_version.outputs.new_version }}: true
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.4.0
@@ -121,7 +124,7 @@ jobs:
       - name: Add dependency chart repos
         run: | 
             git config user.name "$GITHUB_ACTOR"
-            helm package 12-helm/wcg --app-version "$steps.env.outputs.DEPLOY_ENV" --version "$steps.env.outputs.DEPLOY_ENV" -d final/
+            helm package 12-helm/wcg --app-version "$steps.get_version.outputs.new_version" --version "$steps.get_version.outputs.new_version" -d final/
             helm repo index --url https://stanisz1.github.io/devops-hometasks/ 
             git add .
             git commit -m "Update Helm repository with new package"
