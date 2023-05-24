@@ -28,7 +28,7 @@ jobs:
           VERBOSE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs: 
-        tag: ${{ steps.tag.outputs.tag }}"
+        tag: ${{ steps.tag.outputs.tag }}
     
 
   build-docker:
@@ -47,9 +47,9 @@ jobs:
       run: |
         repository_owner=${{ github.repository_owner }}
         repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t --build-arg remove_character=""" ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}  -f ./07-docker/Dockerfile.multi .
+        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t  ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}  -f ./07-docker/Dockerfile.multi .
         docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} 
-        docker push --build-arg remove_character=""" ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}
         
 
   lint-test:
