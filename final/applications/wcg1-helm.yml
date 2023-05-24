@@ -12,7 +12,7 @@ spec:
   source:
     path: ""
     repoURL: "https://stanisz1.github.io/devops-hometasks/"
-    targetRevision: "v.*"
+    targetRevision: "*"
     chart: wcg
   sources: []
   project: development
