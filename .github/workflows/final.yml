@@ -27,9 +27,8 @@ jobs:
       env:
           VERBOSE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: tag
-     outputs: 
-      tag: ${{ steps.tag.outputs.tag }}"
+    outputs: 
+        tag: ${{ steps.tag.outputs.tag }}"
     
 
   build-docker:
