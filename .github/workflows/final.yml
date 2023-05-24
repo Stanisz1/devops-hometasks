@@ -47,14 +47,14 @@ jobs:
       steps:
         - name: Checkout
           uses: actions/checkout@v3
+          with:
+            username: ${{ github.actor }}
+            password: ${{ secrets.ACTION_TOKEN }}
         - name: Install Helm
           run: |
             curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
         - name: Create Helm Package and Update Repository Index
-          with:
-              username: ${{ github.actor }}
-              password: ${{ secrets.ACTION_TOKEN }}
-            run: |
+          run: |
               helm package 12-helm/wcg --app-version 3 --version 3 -d final/
               helm repo index --url https://stanisz1.github.io/devops-hometasks/ final/
               git add .
