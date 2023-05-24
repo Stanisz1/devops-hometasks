@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
   
 jobs:
- bump-version:
+
+  bump-version:
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -22,7 +23,7 @@ jobs:
     outputs:
         DEPLOY_ENV: ${{ steps.env.outputs.DEPLOY_ENV }}
 
- build-docker:
+  build-docker:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3.3.0
@@ -43,7 +44,7 @@ jobs:
         
 
   lint-test:
-    needs: [build-docker, bump-version]
+    needs: [build-docker]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -85,7 +86,7 @@ jobs:
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
 
   chart-releaser:
-    needs: [bump-version, build-docker, lint-test]
+    needs: [build-docker, lint-test]
     runs-on: ubuntu-20.04
     permissions:
       contents: write
