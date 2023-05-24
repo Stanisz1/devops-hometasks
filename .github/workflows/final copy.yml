@@ -4,7 +4,7 @@ on:
     branches:
       - master
     tags-ignore:
-      - v*
+      - '*'
   workflow_dispatch:
   
 jobs:
@@ -14,17 +14,32 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v3
-      with:
-        #ref: ${{ github.sha }}
-        fetch-depth: '0'
+    # - uses: actions/checkout@v3
+    #   with:
+    #     #ref: ${{ steps.tag_create.outputs.tag_exists }}
+    #     fetch-depth: '0'
 
-    - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@1.64.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
-        WITH_V: true
-        #PRERELEASE: true
+    # - name: Bump version and push tag
+    #   uses: anothrNick/github-tag-action@1.64.0
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
+    #     WITH_V: true
+    #     #PRERELEASE: true
+    - uses: actions/checkout@v3
+    - uses: rickstaa/action-create-tag@v1
+      id: "tag_create"
+      with:
+        tag: "latest"
+        tag_exists_error: false
+        message: "Latest release"
+
+    # Print result using the env variable.
+    -  run: |
+        echo "Tag already present: ${{ env.TAG_EXISTS }}"
+
+    # Print result using the action output.
+    - run: |
+        echo "Tag already present: ${{ steps.tag_create.outputs.tag_exists }}"
     
     - uses: actions/checkout@v3.3.0
     - name: Login to GitHub Container Registry
@@ -37,8 +52,8 @@ jobs:
       run: |
         repository_owner=${{ github.repository_owner }}
         repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ steps.tag_create.outputs.tag_exists }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ steps.tag_create.outputs.tag_exists }}
         docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
         
 
@@ -118,12 +133,13 @@ jobs:
 
       - name: Add dependency chart repos
         run: |
+          helm package 12-helm/wcg --app-version ${{ steps.tag_create.outputs.tag_exists }} --version ${{ steps.tag_create.outputs.tag_exists }} -d  final
           helm repo index --url  https://stanisz1.github.io/devops-hometasks/ .
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: final
           config: index.yaml
-          charts_repo_url: https://stanisz1.github.io/devops-hometasks/
+          charts_repo_url: xxxxxx
         env:
           CR_TOKEN: "${{ secrets.ACTION_TOKEN }}"
