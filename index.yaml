@@ -2,8 +2,16 @@ apiVersion: v1
 entries:
   wcg:
   - apiVersion: v2
+    appVersion: 0.25.0
+    created: "2023-05-25T15:06:30.293945135Z"
+    digest: ef74a689743347f96d1708cf9d3c169cc798db5c9966b972dd14d45b82aac37b
+    name: wcg
+    urls:
+    - https://stanisz1.github.io/devops-hometasks/final/wcg-0.25.0.tgz
+    version: 0.25.0
+  - apiVersion: v2
     appVersion: 0.24.0
-    created: "2023-05-25T14:56:52.438208355Z"
+    created: "2023-05-25T15:06:30.293723833Z"
     digest: bb296ec9e89f4cf58c3a874f46c52a1d792d29427f0dbf6d6c514388c023674c
     name: wcg
     urls:
@@ -11,7 +19,7 @@ entries:
     version: 0.24.0
   - apiVersion: v2
     appVersion: 0.23.0
-    created: "2023-05-25T14:56:52.437258544Z"
+    created: "2023-05-25T15:06:30.293484632Z"
     digest: 56281bb351dbe030dbdf0a8604ac35a310ebf64eda94398a091db1ede906402b
     name: wcg
     urls:
@@ -19,7 +27,7 @@ entries:
     version: 0.23.0
   - apiVersion: v2
     appVersion: 0.22.0
-    created: "2023-05-25T14:56:52.436738238Z"
+    created: "2023-05-25T15:06:30.29326663Z"
     digest: 9f59e016f0c33118fb91b3fb2a190a80d98b8680f9a63a38a93dece8a4aedbe0
     name: wcg
     urls:
@@ -27,10 +35,10 @@ entries:
     version: 0.22.0
   - apiVersion: v2
     appVersion: 0.21.0
-    created: "2023-05-25T14:56:52.436522036Z"
+    created: "2023-05-25T15:06:30.292982828Z"
     digest: 034fbc87d5b6c8483c346a86d7a8d61a7d316207458afd3c100bd992cca3a06e
     name: wcg
     urls:
     - https://stanisz1.github.io/devops-hometasks/final/wcg-0.21.0.tgz
     version: 0.21.0
-generated: "2023-05-25T14:56:52.436115231Z"
+generated: "2023-05-25T15:06:30.292529125Z"
