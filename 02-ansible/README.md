@@ -1,6 +1,3 @@
-https://app.vagrantup.com/atrohov97/boxes/centos8
-
-
 # Домашнее задание (не оценивается)
 
 - Инициализируйте локальный git-репозиторий
@@ -113,4 +110,3 @@ https://app.vagrantup.com/atrohov97/boxes/centos8
 - `vagrant status`
 - `vagrant global-status`
 - `vagrant package`
-
