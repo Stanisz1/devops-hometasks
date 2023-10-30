@@ -1,4 +1,4 @@
-# Домашние задания
+# Homework
 
 - [Homework 1](01-vagrant/#Homework-1) (git,vagrnat)
 - [Homework 2](02-ansible/#Homework-2) (ansible)
