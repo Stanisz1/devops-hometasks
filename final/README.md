@@ -27,3 +27,4 @@
 
 Check if "Read and write permissions" are enabled in Settings -> Actions -> General -> Workflow permissions.
 
+![image](https://github.com/Stanisz1/devops-hometasks/assets/34337276/e1dc003f-ad2d-4d28-9db0-62122ca25c54)
