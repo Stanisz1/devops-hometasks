@@ -1,0 +1,15 @@
+[staging]
+staging.vm ansible_ssh_host=192.168.50.55
+
+[production]
+production.vm ansible_ssh_host=192.168.50.60
+
+[jenkins]
+jenkins.vm ansible_ssh_host=192.168.50.50
+
+[nexus]
+nexus.vm ansible_ssh_host=192.168.50.65
+
+[all:vars]
+ansible_password=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

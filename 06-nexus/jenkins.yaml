@@ -1,0 +1,65 @@
+---
+- name: Install and configure Jenkins
+  hosts: jenkins
+  become: yes
+  roles:
+  - jenkins
+
+- name: Install and configure staging and production
+  hosts: production,staging
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: Copy system file
+      copy:
+        src: "{{ playbook_dir }}/templates/wordcloud.service"
+        dest: /etc/systemd/system/
+
+    - name: Create wordcloud directory
+      file:
+        state: directory
+        path: /opt/wordcloud/
+        owner: vagrant
+        group: vagrant
+        mode: '0755'
+
+- name: Install Nexus
+  hosts: nexus
+  become: yes
+
+  roles:
+     - { role: nexus3-oss }
+  vars:
+    nexus_admin_password: 'admin'
+    nexus_public_hostname: 'nexus.vm'
+    nexus_onboarding_wizard: false
+    nexus_anonymous_access: false
+    nexus_delete_default_repos: true
+    nexus_default_admin_password: 'admin'
+    nexus_default_port: 8081
+    nexus_application_host: '{{ httpd_setup_enable | ternary("127.0.0.1", "0.0.0.0") }}'
+    nexus_default_context_path: '/'
+    nexus_config_maven: false
+    nexus_config_raw: true
+    nexus_repos_raw_hosted:
+      - name: word-cloud-build
+        version_policy: release
+        write_policy: allow_once  # one of "allow", "allow_once" or "deny"
+    nexus_roles:
+      - id: nx-uploader
+        name: nx-uploader
+        description: nx-uploader
+        privileges:
+          - nx-repository-view-raw-word-cloud-build-*
+        roles: []
+    nexus_local_users:
+      - username: nx-uploader
+        first_name: uploader
+        last_name: nx
+        email: nx-uploader@email.com
+        password: nx-uploader
+        roles:
+          - nx-uploader
+    nexus_ldap_realm: false
+    ldap_connections: []

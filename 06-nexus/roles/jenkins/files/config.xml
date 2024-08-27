@@ -1,0 +1,144 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BRANCH</name>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>master</string>
+              <string>branch2</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>NEXUS_URL</name>
+          <defaultValue>192.168.50.65:8081/</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@5.2.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/ViinSent/word-cloud-generator.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>$BRANCH</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="empty-list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>sed -i &quot;s/1.DEVELOPMENT/1.$BUILD_NUMBER/g&quot; static/version
+
+GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v
+
+gzip -f ./artifacts/word-cloud-generator
+
+            </command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <sp.sd.nexusartifactuploader.NexusArtifactUploader plugin="nexus-artifact-uploader@2.14">
+      <nexusVersion>nexus3</nexusVersion>
+      <protocol>http</protocol>
+      <nexusUrl>$NEXUS_URL</nexusUrl>
+      <groupId>$BRANCH</groupId>
+      <version>1.$BUILD_NUMBER</version>
+      <repository>word-cloud-build</repository>
+      <artifacts>
+        <sp.sd.nexusartifactuploader.Artifact>
+          <artifactId>word-cloud</artifactId>
+          <type>gz</type>
+          <classifier></classifier>
+          <file>./artifacts/word-cloud-generator.gz</file>
+        </sp.sd.nexusartifactuploader.Artifact>
+      </artifacts>
+      <credentialsId>nx-uploader</credentialsId>
+    </sp.sd.nexusartifactuploader.NexusArtifactUploader>
+    <org.jvnet.hudson.plugins.SSHBuilder plugin="ssh@2.6.1">
+      <siteName>vagrant@192.168.50.55:22</siteName>
+      <command>sudo service wordcloud stop
+
+curl -X GET &quot;http://192.168.50.65:8081/repository/word-cloud-build/$BRANCH/word-cloud/1.$BUILD_NUMBER/word-cloud-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz -u $NEXUS_USER:$NEXUS_PASSWORD
+ls -l /opt/wordcloud
+
+gunzip -f  /opt/wordcloud/word-cloud-generator.gz
+
+chmod +x  /opt/wordcloud/word-cloud-generator
+
+sudo service wordcloud start</command>
+      <execEachLine>false</execEachLine>
+      <hideCommand>true</hideCommand>
+    </org.jvnet.hudson.plugins.SSHBuilder>
+    <hudson.tasks.Shell>
+      <command>res=`curl -s http://192.168.50.55:8888/version | jq -r &apos;.version&apos;`
+if [ &quot;1.$BUILD_NUMBER&quot; != &quot;$res&quot; ]; then
+  exit 99
+fi
+
+res=`curl -s -H &quot;Content-Type: application/json&quot; -d &apos;{&quot;text&quot;:&quot;ths is a really really really important thing this is&quot;}&apos; http://192.168.50.55:8888/api | jq &apos;. | length&apos;`
+if [ &quot;7&quot; != &quot;$res&quot; ]; then
+  exit 99
+fi</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <org.jvnet.hudson.plugins.SSHBuilder plugin="ssh@2.6.1">
+      <siteName>vagrant@192.168.50.60:22</siteName>
+      <command>sudo service wordcloud stop
+
+curl -X GET &quot;http://192.168.50.65:8081/repository/word-cloud-build/$BRANCH/word-cloud/1.$BUILD_NUMBER/word-cloud-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz -u $NEXUS_USER:$NEXUS_PASSWORD
+ls -l /opt/wordcloud
+
+gunzip -f  /opt/wordcloud/word-cloud-generator.gz
+
+chmod +x  /opt/wordcloud/word-cloud-generator
+
+sudo service wordcloud start</command>
+      <execEachLine>false</execEachLine>
+      <hideCommand>true</hideCommand>
+    </org.jvnet.hudson.plugins.SSHBuilder>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>artifacts/word-cloud-generator.gz</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+      <followSymlinks>false</followSymlinks>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper plugin="credentials-binding@642.v737c34dea_6c2">
+      <bindings>
+        <org.jenkinsci.plugins.credentialsbinding.impl.UsernamePasswordMultiBinding>
+          <credentialsId>nx-uploader</credentialsId>
+          <usernameVariable>NEXUS_USER</usernameVariable>
+          <passwordVariable>NEXUS_PASSWORD</passwordVariable>
+        </org.jenkinsci.plugins.credentialsbinding.impl.UsernamePasswordMultiBinding>
+      </bindings>
+    </org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper>
+    <org.jenkinsci.plugins.golang.GolangBuildWrapper plugin="golang@1.4">
+      <goVersion>go_lang</goVersion>
+    </org.jenkinsci.plugins.golang.GolangBuildWrapper>
+  </buildWrappers>
+</project>

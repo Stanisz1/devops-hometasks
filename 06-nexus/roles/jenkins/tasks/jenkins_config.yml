@@ -1,0 +1,63 @@
+- name: Configure Jenkins directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  loop:
+    - /var/lib/jenkins/init.groovy.d
+
+- name: Copy Jenkins scripts
+  template:
+    src: "{{ item }}"
+    dest: "/var/lib/jenkins/init.groovy.d/{{ item | basename | splitext | first }}"
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  with_fileglob:
+  - ../templates/*.groovy.j2
+  notify: Restart jenkins
+
+- name: Update Jenkins service configuration
+  lineinfile:
+    path: /lib/systemd/system/jenkins.service
+    regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"'
+    line: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dcasc.jenkins.config=${JENKINS_HOME}/casc_configs"'
+
+- name: Copy Jenkins config
+  copy:
+    src: jenkins.yaml
+    dest: /var/lib/jenkins/casc_configs/
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  notify: Restart jenkins 
+
+- name: Copy Jenkins job config
+  copy:
+    src: config.xml
+    dest: /var/lib/jenkins/jobs/go_build/
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  notify: Restart jenkins
+
+- name: Copy Jenkins plugin settings
+  copy:
+    src: org.jvnet.hudson.plugins.SSHBuildWrapper.xml
+    dest: /var/lib/jenkins/org.jvnet.hudson.plugins.SSHBuildWrapper.xml
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+
+
+- name: Update Jenkins service timeout
+  lineinfile:
+    path: /lib/systemd/system/jenkins.service
+    regexp: '^#TimeoutStartSec=90'
+    line: 'TimeoutStartSec=270'
+  notify: Restart jenkins
+
+- name: Flush handlers
+  meta: flush_handlers

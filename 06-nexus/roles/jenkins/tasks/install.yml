@@ -1,0 +1,26 @@
+---
+- name: Install required packages
+  apt:
+    name: 
+    - build-essential
+    - default-jre
+    - jq
+    state: present
+    update_cache: yes
+
+- name: Add Jenkins GPG key
+  shell: curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo gpg --dearmor -o /usr/share/keyrings/jenkins-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/jenkins-keyring.gpg
+
+- name: Add Jenkins repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: present
+    update_cache: yes
+  ignore_errors: true
