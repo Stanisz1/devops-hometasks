@@ -6,8 +6,8 @@ import hudson.security.*
 
 println "--> creating admin user"
 
-def adminUsername = "admin"
-def adminPassword = "admin"
+def adminUsername = System.getenv('JENKINS_USER')
+def adminPassword = System.getenv('JENKINS_PASSWORD')
 
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
 hudsonRealm.createAccount(adminUsername, adminPassword)

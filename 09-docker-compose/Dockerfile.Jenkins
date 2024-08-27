@@ -1,6 +1,0 @@
-FROM debian:bullseye
-RUN apt update && apt install -y ansible
-WORKDIR /root/
-COPY ./jenkins/ /root/
-RUN ansible-playbook -i inventory playbook.yaml
-CMD /usr/bin/java -Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true -jar /usr/share/java/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=8080

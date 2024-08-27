@@ -1,0 +1,26 @@
+nexus_version: ''
+nexus_admin_password: admin
+nexus_config_maven: false
+nexus_delete_default_repos: true
+nexus_config_raw: true
+nexus_annonymous_access: false
+nexus_repos_raw_hosted:
+- name: word-cloud-build
+  version_policy: release
+  write_policy: allow
+nexus_roles:
+- id: nx-uploader
+  name: nx-uploader
+  description: all uploaders
+  privileges:
+  - nx-repository-view-raw-word-cloud-build-*
+  roles: []
+nexus_local_users:
+- username: uploader
+  state: present
+  first_name: uploader
+  last_name: loader
+  email: support@company.com
+  password: "uploader"
+  roles:
+  - nx-uploader

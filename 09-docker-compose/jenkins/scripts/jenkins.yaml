@@ -1,0 +1,37 @@
+unclassified:
+  locale:
+    systemLocale: en
+    ignoreAcceptLanguage: true
+
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          scope:    GLOBAL
+          id:       staging-creds
+          username: vagrant
+          password: vagrant
+          description: staging-creds
+      - usernamePassword:
+          scope:    GLOBAL
+          id:       prod-creds
+          username: vagrant
+          password: vagrant
+          description: prod-creds
+      - usernamePassword:
+          scope:    GLOBAL
+          id:       nexus-creds
+          username: uploader
+          password: uploader
+          description: nexus-creds
+
+tool:
+  go:
+    installations:
+    - name: "Go 1.16"
+      properties:
+      - installSource:
+          installers:
+          - golangInstaller:
+              id: "1.16"

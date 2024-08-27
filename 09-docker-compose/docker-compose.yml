@@ -1,30 +1,47 @@
 ---
-version: '3'
+version: '3.3'
 services:
-  
-  jenkins:
-    container_name: jenkins
-    build:
-      context: .
-      dockerfile: Dockerfile.Jenkins
-    depends_on:
-    - nexus
-    networks:
-    - close
-    ports: 
-    - "80:8080"
-
   nexus:
-    container_name: nexus
     build:
-      context: .
-      dockerfile: Dockerfile.Nexus
-    networks:
-    - close
+      context: nexus
+      dockerfile: Dockerfile-nexus
+    image: nexustest
     ports: 
-    - "81:8081"
-    
-  
+    - 82:8081
+  jenkins:
+    build:
+      context: jenkins
+      dockerfile: Dockerfile-jenkins
+      args:
+        jenkins_user: admin
+        jenkins_password: admin
+        jenkins_plugins: |
+          credentials 
+          credentials-binding 
+          golang locale 
+          git 
+          timestamper 
+          nexus-artifact-uploader 
+          pipeline-groovy-lib 
+          workflow-basic-steps 
+          workflow-cps 
+          workflow-durable-task-step 
+          workflow-job 
+          workflow-multibranch 
+          pipeline-build-step 
+          pipeline-input-step 
+          pipeline-milestone-step 
+          pipeline-stage-step 
+          pipeline-model-definition 
+          configuration-as-code
+        java_opts: "-Djenkins.install.runSetupWizard=false"
+# pipeline
+    image: jenkinstest
+    ports: 
+    - 83:8080
+    volumes:
+    - jenkins-home:/var/jenkins_home
 
-networks:
-  close:
+volumes:
+  jenkins-home:
+  nexus-data:

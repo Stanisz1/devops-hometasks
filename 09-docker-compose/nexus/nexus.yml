@@ -1,0 +1,29 @@
+- name: Setup Nexus
+  hosts: all
+  become: yes
+  vars_files:
+  - vars.yml
+  vars:
+  - nexus_annonymous_access: true
+
+  pre_tasks:
+  - name: Add key
+    get_url:
+      url: "https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public"
+      dest: /etc/apt/trusted.gpg.d/java.asc
+      mode: '0644'
+      force: true
+
+  - name: Add repository
+    apt_repository:
+      repo: deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ buster main
+      state: present
+      update_cache: true
+
+  - name: Install Java
+    apt:
+      name: adoptopenjdk-8-hotspot
+      state: present
+
+  roles:
+  - role: ansible-thoteam.nexus3-oss

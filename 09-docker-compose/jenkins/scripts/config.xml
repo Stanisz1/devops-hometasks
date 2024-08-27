@@ -1,0 +1,73 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1316.vd2290d3341a_f">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2144.v077a_d1928a_40"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2144.v077a_d1928a_40">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@3726.v83f8cff396c9">
+    <script>pipeline {
+    agent any
+    tools {
+        go &apos;Go 1.16&apos;
+    }
+    options {
+        timestamps()
+    }
+    stages{
+        stage(&apos;Download Git repo&apos;) {
+            steps {
+                git &apos;https://github.com/wickett/word-cloud-generator.git&apos;
+            }
+        }
+        stage (&apos;Test&apos;){
+            steps{
+                sh &apos;&apos;&apos;sed -i &quot;s/1.DEVELOPMENT/1.$BUILD_NUMBER/g&quot; static/version
+                      make lint
+                      make test
+                &apos;&apos;&apos;                
+            }
+        }
+        stage (&apos;Build code&apos;){
+            steps{
+                sh &apos;&apos;&apos;
+                      GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v .
+                      gzip -f artifacts/word-cloud-generator
+                      ls -l artifacts/
+                &apos;&apos;&apos;
+            }
+        }
+        stage (&apos;Nexus upload&apos;){
+            steps{
+                nexusArtifactUploader (
+                    nexusVersion: &apos;nexus3&apos;,
+                    protocol: &apos;http&apos;,
+                    nexusUrl: &apos;nexus:8081&apos;,
+                    groupId: &quot;jenkinsfile_build&quot;,
+                    version: &apos;1.$BUILD_NUMBER&apos;,
+                    repository: &apos;word-cloud-build&apos;,
+                    credentialsId: &apos;nexus-creds&apos;,
+                    artifacts: [
+                        [artifactId: &apos;word-cloud-generator&apos;,
+                        type: &apos;gz&apos;,
+                        classifier: &apos;&apos;,
+                        file: &apos;artifacts/word-cloud-generator.gz&apos;
+                        ]
+                    ]
+                )
+            }
+        }
+	}
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
