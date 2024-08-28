@@ -1,17 +1,17 @@
 ---
-version: '3.3'
+version: '2'
 services:
   nexus:
     build:
       context: nexus
-      dockerfile: Dockerfile-nexus
-    image: nexustest
+      dockerfile: Dockerfile
+    image: nexus-1
     ports: 
-    - 82:8081
+    - 8081:8081
   jenkins:
     build:
       context: jenkins
-      dockerfile: Dockerfile-jenkins
+      dockerfile: Dockerfile
       args:
         jenkins_user: admin
         jenkins_password: admin
@@ -32,16 +32,18 @@ services:
           pipeline-input-step 
           pipeline-milestone-step 
           pipeline-stage-step 
+          pipeline-stage-view
           pipeline-model-definition 
           configuration-as-code
         java_opts: "-Djenkins.install.runSetupWizard=false"
 # pipeline
-    image: jenkinstest
+    image: jenkins-1
     ports: 
     - 83:8080
     volumes:
     - jenkins-home:/var/jenkins_home
-
+    # depends_on:
+    # - nexus
 volumes:
   jenkins-home:
   nexus-data:
